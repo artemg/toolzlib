@@ -34,13 +34,13 @@ enum Econfig_param_source{ DEFAULT_VAL, CONFIG_FILE, COMMAND_LINE };
 
 class CConfig{
 public:
-    int print_config_info();
+
     ~CConfig();
 
 protected:
     int parsefile(const char *config_filename);
-    int parse_comandline(const char *default_conffilename, const char *version, int argc, char** argv);
-    int parse_commandline_long(int32_t argc, char** argv);
+    int parse_comandline__(const char *default_conffilename, const char *version, int argc, char** argv);
+    int parse_commandline(int32_t argc, char** argv);
     int addIntParam( const char *name, int32_t  *holder, const int32_t  default_value);
     int addUintParam(const char *name, uint32_t *holder, const uint32_t default_value);
     int addPCharParam(const char *name, char **holder,
@@ -56,6 +56,7 @@ protected:
     void addEndingSlash(char **str);
     void make_full_path(const char *root_dir, const char *sub_dir, char **path);
     int clear_buffers();
+    int print_config_info();
 private:
     struct mymap_struct{
         string val;

@@ -111,7 +111,7 @@ int CConfig::parsefile(const char *config_filename)
     return 0;
 }
 
-int CConfig::parse_commandline_long(int argc, char** argv)
+int CConfig::parse_commandline(int argc, char** argv)
 {
     const int32_t long_options_size = int_map.size() + pchar_map.size() + ushort_map.size() + 1;
     struct option *long_options = (struct option *) calloc(long_options_size, sizeof(struct option));
@@ -249,7 +249,7 @@ int CConfig::parse_commandline_long(int argc, char** argv)
     free(long_options);
 }
 
-int CConfig::parse_comandline(const char *default_conffilename,
+int CConfig::parse_comandline__(const char *default_conffilename,
     const char *version, int argc, char** argv)
 {
     char *config_filename = NULL;
