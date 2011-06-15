@@ -19,7 +19,7 @@ int CConfig::parsefile(const char *config_filename)
 
     FILE *fp = fopen(config_filename, "r");
     if (fp == NULL){
-        LOG(L_ERROR, "Cannot open file for read: '%s'\n", config_filename);
+        LOG(L_ERROR, NULL, "Cannot open file for read: '%s'\n", config_filename);
         return -1;
     }
     while (fgets(buf, sizeof(buf), fp) != NULL){
@@ -33,7 +33,7 @@ int CConfig::parsefile(const char *config_filename)
         const char *value = strsep(&strbuf_it, str_delims);
 
         if( key == NULL || value == NULL ){
-            LOG(L_WARN, "Wrong string '%s', while parsing config\n", buf);
+            LOG(L_WARN, NULL, "Wrong string '%s', while parsing config\n", buf);
             continue;
         }
         // find param in integer params
@@ -42,7 +42,7 @@ int CConfig::parsefile(const char *config_filename)
             if (i != int_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atoi(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -53,7 +53,7 @@ int CConfig::parsefile(const char *config_filename)
             if (i != uint_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = (uint32_t)strtoul(value, NULL, 10);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -66,7 +66,7 @@ int CConfig::parsefile(const char *config_filename)
                 //if( *(i->second.holder) != NULL ) free(*(i->second.holder));
                 *(i->second.holder) = strdup(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%s'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%s'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -77,7 +77,7 @@ int CConfig::parsefile(const char *config_filename)
             if(i != ushort_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atoi(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -88,7 +88,7 @@ int CConfig::parsefile(const char *config_filename)
             if(i != int64_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = strtoll(value, NULL, 10);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%ld'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%ld'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -99,12 +99,12 @@ int CConfig::parsefile(const char *config_filename)
             if(i != double_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atof(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, "Config: added param '%s', value '%f'\n",
+                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%f'\n",
                     key, *(i->second.holder) );
                 continue;
             }
         }
-        LOG(L_DEBUG12, "Config string '%s' ignored\n",
+        LOG(L_DEBUG12, NULL, "Config string '%s' ignored\n",
             buf);
     }
     fclose(fp);
@@ -186,8 +186,8 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if (i != int_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atoi(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, "%s Config: added param '%s', value '%d'\n",
-                        __PRETTY_FUNCTION__, long_options[option_index].name,
+                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                        long_options[option_index].name,
                          *(i->second.holder) );
                     continue;
                 }
@@ -200,8 +200,8 @@ int CConfig::parse_commandline(int argc, char** argv)
                     //if( *(i->second.holder) != NULL ) free(*(i->second.holder));
                     *(i->second.holder) = strdup(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, "%s Config: added param '%s', value '%s'\n",
-                        __PRETTY_FUNCTION__, long_options[option_index].name,
+                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%s'\n",
+                        long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
                 }
@@ -212,8 +212,8 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != ushort_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atoi(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, "%s Config: added param '%s', value '%d'\n",
-                        __PRETTY_FUNCTION__, long_options[option_index].name,
+                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                        long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
                 }
@@ -224,8 +224,8 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != int64_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = strtoll(optarg, NULL, 10);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, "%s Config: added param '%s', value '%ld'\n",
-                        __PRETTY_FUNCTION__, long_options[option_index].name,
+                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%ld'\n",
+                        long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
                 }
@@ -236,14 +236,14 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != double_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atof(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, "%s Config: added param '%s', value '%f'\n",
-                        __PRETTY_FUNCTION__, long_options[option_index].name,
+                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%f'\n",
+                        long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
                 }
             }
-            LOG(L_DEBUG12, "%s Config string '%s' ignored\n",
-                __PRETTY_FUNCTION__, long_options[option_index].name);
+            LOG(L_DEBUG12, NULL, "Config string '%s' ignored\n",
+                long_options[option_index].name);
         }
     }
     free(long_options);
@@ -301,11 +301,11 @@ int CConfig::parse_comandline__(const char *default_conffilename,
 
     // check another args
     if (optind < argc){
-        LOG(L_WARN, "Warning: argument(s) will be ignored: ");
+        LOG(L_WARN, NULL, "Warning: argument(s) will be ignored: ");
         while (optind < argc){
-            LOG(L_WARN, "'%s' ", argv[optind++]);
+            LOG(L_WARN, NULL, "'%s' ", argv[optind++]);
         }
-        LOG(L_WARN, "\n");
+        LOG(L_WARN, NULL, "\n");
     }
     return (config_filename==NULL) ? parsefile(default_conffilename) : parsefile(config_filename);
 }
