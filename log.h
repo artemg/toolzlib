@@ -8,7 +8,7 @@
 #define L_WARN 2
 #define L_DEBUG12 12
 
-void (*log_func)(int cur_level, int level, void *NULL, const char *format, ...) = NULL;
+void (*log_func)(int level, void *arg, const char *format, ...) = NULL;
 
 #define LOG(args...) (*log_func)(args)
 
