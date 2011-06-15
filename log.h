@@ -6,6 +6,7 @@
 
 #define L_ERROR 1
 #define L_WARN 2
+#define L_DEBUG 3
 #define L_DEBUG12 12
 
 void (*log_func)(int level, void *arg, const char *format, ...) = NULL;
