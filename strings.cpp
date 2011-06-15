@@ -24,7 +24,7 @@ char *utf8_lowercase(char *str)
     size_t str_len  = strlen(str);
 
     if (str_len >= CONVERT_BUFFER_SIZE){
-        LOG(L_ERROR, "str_len must be < %d at %s:%d (%s)\n",
+        LOG(L_ERROR, NULL, "str_len must be < %d at %s:%d (%s)\n",
             CONVERT_BUFFER_SIZE,
             __FILE__, __LINE__, __FUNCTION__
         );
@@ -50,8 +50,7 @@ char *utf8_lowercase(char *str)
         &buff_wchar_ptr, &buff_wchar_max_len
     );
     if (res == (size_t) -1){
-        //ERROR_LOG(L_ERROR, "iconv() failed\n");
-        //ERROR_LOG(L_ERROR, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
+        LOG(L_DEBUG, NULL, "iconv() failed\n");
         return NULL;
     }
 
@@ -70,9 +69,9 @@ char *utf8_lowercase(char *str)
         &buff_utf8_ptr,  &buff_utf8_max_len
     );
     if (res == (size_t) -1){
-        LOG(L_ERROR, "Cannot convert to lowercase: '%s'\n", str);
-        LOG(L_ERROR, "iconv() failed");
-        LOG(L_ERROR, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
+        LOG(L_ERROR, NULL, "Cannot convert to lowercase: '%s'\n", str);
+        LOG(L_ERROR, NULL, "iconv() failed");
+        LOG(L_ERROR, NULL, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
         buff_utf8[0] = 0x00;
         return (char *)buff_utf8;
     }
@@ -129,7 +128,7 @@ char *utf8_lowercase_with_replace(char *str)
     size_t str_len  = strlen(str);
 
     if (str_len >= CONVERT_BUFFER_SIZE){
-        LOG(L_ERROR, "str_len must be < %d at %s:%d (%s)\n",
+        LOG(L_ERROR, NULL, "str_len must be < %d at %s:%d (%s)\n",
             CONVERT_BUFFER_SIZE,
             __FILE__, __LINE__, __FUNCTION__
         );
@@ -156,8 +155,8 @@ char *utf8_lowercase_with_replace(char *str)
         &buff_wchar_ptr, &buff_wchar_max_len
     );
     if (res == (size_t) -1){
-        LOG(L_ERROR, "iconv() failed");
-        LOG(L_ERROR, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
+        LOG(L_ERROR, NULL, "iconv() failed");
+        LOG(L_ERROR, NULL, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
         return NULL;
     }
 
@@ -181,9 +180,9 @@ char *utf8_lowercase_with_replace(char *str)
         &buff_utf8_ptr,  &buff_utf8_max_len
     );
     if (res == (size_t) -1){
-        LOG(L_ERROR, "Cannot convert to lowercase: '%s'\n", str);
-        LOG(L_ERROR, "iconv() failed");
-        LOG(L_ERROR, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
+        LOG(L_ERROR, NULL, "Cannot convert to lowercase: '%s'\n", str);
+        LOG(L_ERROR, NULL, "iconv() failed");
+        LOG(L_ERROR, NULL, "at %s:%d (%s)\n", __FILE__, __LINE__, __FUNCTION__);
         buff_utf8[0] = 0x00;
         return (char *)buff_utf8;
     }
