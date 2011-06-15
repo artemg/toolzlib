@@ -7,7 +7,10 @@
 #define L_ERROR 1
 #define L_WARN 2
 #define L_DEBUG12 12
-#define LOG(args...) _M_LOG(args)
+
+void (*log_func)(int cur_level, int level, void *NULL, const char *format, ...) = NULL;
+
+#define LOG(args...) (*log_func)(args)
 
 inline void _M_LOG(int level, const char *format, ...){
     va_list va;
