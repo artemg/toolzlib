@@ -36,7 +36,7 @@ inline int lx_snprintf_func(const char *file, const int line, char *str, size_t 
     int ret = vsnprintf(str, size, format, va);
     va_end(va);
     if( ret < 0 || (size_t)ret >= size ){
-        LOG(L_ERROR, "Buffer too small. File:%s Line:%d Buffer size=%lu, needed=%d\n",
+        LOG(L_ERROR, NULL, "Buffer too small. File:%s Line:%d Buffer size=%lu, needed=%d\n",
             file, line, size, ret+1);
     }
     return ret;
@@ -52,7 +52,7 @@ inline char *lx_strncat(char *dest, const char *src, size_t dest_size){
         dest[dest_len + i] = src[i];
     dest[dest_len + i] = '\0';
     if( src[i] != '\0' ){
-        LOG(L_WARN, "Strncat need more buffer, bufsize = %ld\n", dest_size);
+        LOG(L_WARN, NULL, "Strncat need more buffer, bufsize = %ld\n", dest_size);
     }
 
     return dest;
