@@ -9,9 +9,9 @@
 #define L_DEBUG 3
 #define L_DEBUG12 12
 
-void (*log_func)(int level, void *arg, const char *format, ...) = NULL;
+void log_(int level, void *arg, const char *format, ...);
 
-#define LOG(args...) (*log_func)(args)
+#define LOG(args...) log_(args)
 
 inline void _M_LOG(int level, const char *format, ...){
     va_list va;
