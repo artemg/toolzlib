@@ -5,7 +5,7 @@
 #define CLOCK_MONOTONIC_RAW      4
 #endif
 
-static struct timeval t1,t2;
+static struct timespec t1,t2;
 map<string, Eprofile> CProfilerTask::stat;
 
 bool CProfilerTask::profile_enabled = false;
@@ -16,9 +16,8 @@ void start_profile(){
 
 void end_profile_print(){
     clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-    double d1 = double(t1.tv_sec) + double(t1.tv_usec ) / 1000000.0;
-    double d2 = double(t2.tv_sec) + double(t2.tv_usec ) / 1000000.0;    
-    LOG(L_DEBUG, NULL, "Elapsed time: %fs.", d2-d1);
+    double res = diff_timespec(&t1, &t2);
+    LOG(L_DEBUG, NULL, "Elapsed time: %fs.", res);
     
     char buf[20];
     time_t t;
@@ -29,12 +28,11 @@ void end_profile_print(){
     LOG(L_DEBUG, NULL, " (%s)\n", buf);
 }
 
-void end_profile_print(timeval *t_start){
-    struct timeval t_end;
+void end_profile_print(timespec *t_start){
+    struct timespec t_end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &t_end);
-    double d1 = double(t_start->tv_sec) + double(t_start->tv_usec ) / 1000000.0;
-    double d2 = double(t_end.tv_sec) + double(t_end.tv_usec ) / 1000000.0;    
-    LOG(L_DEBUG, NULL, "Elapsed time: %fs.", d2-d1);
+    double res = diff_timespec(&t1, &t2);
+    LOG(L_DEBUG, NULL, "Elapsed time: %fs.", res);
     
     char buf[20];
     time_t t;
@@ -47,9 +45,7 @@ void end_profile_print(timeval *t_start){
 
 double end_profile(){
     clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-    double d1 = double(t1.tv_sec) + double(t1.tv_usec ) / 1000000.0;
-    double d2 = double(t2.tv_sec) + double(t2.tv_usec ) / 1000000.0;
-    return d2 - d1;
+    return diff_timespec(&t1, &t2);
 }
 
 double diff_timeval(timeval *t1, timeval *t2){
@@ -58,6 +54,11 @@ double diff_timeval(timeval *t1, timeval *t2){
     return d2 - d1;
 }
 
+double diff_timespec(timespec *t1, timespec *t2){
+    double d1 = double(t1->tv_sec) + double(t1->tv_nsec ) / 1000000000.0;
+    double d2 = double(t2->tv_sec) + double(t2->tv_nsec ) / 1000000000.0;
+    return d2 - d1;
+}
 
 void CProfilerTask::start(const char *str){
     if(profile_enabled) {
@@ -72,9 +73,7 @@ void CProfilerTask::stop(){
         stat_it it;
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &t_e);
-        double d1 = double(t.tv_sec)   + double(t.tv_usec )   / 1000000.0;
-        double d2 = double(t_e.tv_sec) + double(t_e.tv_usec ) / 1000000.0;
-        const double time_el = d2 - d1;
+        const double time_el = diff_timespec(&t, &t_e);
         it = stat.find(name);
         if( it != stat.end() ){
             it->second.counter++;
@@ -154,9 +153,8 @@ void FastProfiler::start(int item) {
 
 void FastProfiler::stop() {
     clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
-    double d1 = double(t1.tv_sec) + double(t1.tv_usec ) / 1000000.0;
-    double d2 = double(t2.tv_sec) + double(t2.tv_usec ) / 1000000.0;
-    data_[cur_index].time += d2 - d1;
+    double res = diff_timespec(&t1, &t2);
+    data_[cur_index].time += res;
     data_[cur_index].counter +=1;
     started = false;
 }
