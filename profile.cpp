@@ -174,6 +174,10 @@ void FastProfiler::print() {
 FastProfiler::FastProfileData FastProfiler::data_;
 int FastProfiler::size = 0;
 
+int ProfileReporter::addStat(const char *action, double time){
+    return 0;
+}
+
 #ifdef TEST_LIB
 
 int main(){

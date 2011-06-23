@@ -17,6 +17,15 @@ void end_profile_print(timeval *t);
 double end_profile();
 double diff_timeval(timeval *t1, timeval *t2);
 
+struct profile_reporter_t{
+    double t;
+};
+
+class ProfileReporter{
+public:
+    int addStat(const char *action, double time);
+};
+
 struct Eprofile{
     double time;
     int counter;
