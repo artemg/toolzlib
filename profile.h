@@ -16,6 +16,7 @@ void end_profile_print();
 void end_profile_print(timeval *t);
 double end_profile();
 double diff_timeval(timeval *t1, timeval *t2);
+double diff_timespec(timespec *t1, timespec *t2);
 
 struct profile_reporter_t{
     double t;
