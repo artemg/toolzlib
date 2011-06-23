@@ -13,7 +13,7 @@ using namespace std;
 
 void start_profile();
 void end_profile_print();
-void end_profile_print(timeval *t);
+void end_profile_print(timespec *t);
 double end_profile();
 double diff_timeval(timeval *t1, timeval *t2);
 double diff_timespec(timespec *t1, timespec *t2);
@@ -47,8 +47,8 @@ public:
 private:
     bool state_stoped;
     string name;
-    struct timeval t;
-    struct timeval t_e;
+    struct timespec t;
+    struct timespec t_e;
     static map<string, Eprofile> stat;
     static bool profile_enabled;
     typedef map<string, Eprofile>::iterator stat_it;
@@ -75,8 +75,8 @@ class FastProfiler {
 
     private:
         static FastProfileData data_;
-        struct timeval t1;
-        struct timeval t2;
+        struct timespec t1;
+        struct timespec t2;
         bool started;
         int cur_index;
         static int size;
