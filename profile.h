@@ -7,6 +7,7 @@
 #include <string>
 #include "log.h"
 #include <vector>
+#include <pthread.h>
 
 using namespace std;
 
@@ -18,13 +19,31 @@ double end_profile();
 double diff_timeval(timeval *t1, timeval *t2);
 double diff_timespec(timespec *t1, timespec *t2);
 
-struct profile_reporter_t{
-    double t;
-};
 
+
+
+// thread safe
 class ProfileReporter{
 public:
+    ProfileReporter();
+    ~ProfileReporter();
+    struct status_val{
+        int hitcount;
+        int time_sum;
+        double min_exec_time;
+        double max_exec_time;
+        double avg_exec_time;
+        uint64_t more_1sec_exec_time;
+        uint64_t prev_period_req;
+        uint64_t cur_period_req;
+        int period_start_time;
+    };
+    typedef map<string, status_val> stat_t;
     int addStat(const char *action, double time);
+    int getStat(stat_t *stat);
+private:
+    stat_t stat;
+    pthread_rwlock_t stat_lock;
 };
 
 struct Eprofile{

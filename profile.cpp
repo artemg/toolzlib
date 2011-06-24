@@ -176,10 +176,70 @@ void FastProfiler::print() {
 FastProfiler::FastProfileData FastProfiler::data_;
 int FastProfiler::size = 0;
 
-int ProfileReporter::addStat(const char *action, double time){
+int ProfileReporter::addStat(const char *action, double exec_time){
+    pthread_rwlock_wrlock(&stat_lock);
+   
+    stat_t::iterator status_i = stat.find(action);
+    if(status_i != stat.end()){
+        status_val &psv = status_i->second;
+        if( sync ){
+            if( exec_time < psv.min_exec_time ){
+                psv.min_exec_time = exec_time;
+            }
+            if( exec_time > psv.max_exec_time ){
+                psv.max_exec_time = exec_time;
+            }
+            double requests = psv.hitcount + 1;
+            double k1 = psv.hitcount / requests;
+            double k2 = 1 / requests;
+            psv.avg_exec_time = k1*psv.avg_exec_time + k2*exec_time;
+            if( exec_time >= 1 ){
+                ++psv.more_1sec_exec_time;
+            }
+        }
+        // must be after computing avg_exec_time
+        psv.hitcount += 1;
+        psv.time_sum += 0;
+        /*
+        if(ti.tv_sec > psv.period_start_time + AVG_REQUESTS_SWITCH_PERIOD) {
+            psv.period_start_time = ti.tv_sec;
+            psv.prev_period_req = psv.cur_period_req;
+            psv.cur_period_req = 0;
+        }
+        */
+        psv.cur_period_req += 1;
+    } else {
+        status_val sv;
+        sv.hitcount      = 1;
+        sv.time_sum      = 0;
+        sv.min_exec_time = exec_time;
+        sv.max_exec_time = exec_time;
+        sv.avg_exec_time = exec_time;
+        sv.more_1sec_exec_time = 0;
+        sv.cur_period_req = 1;
+        sv.prev_period_req = 0;
+        //sv.period_start_time = ti.tv_sec;
+        stat[action] = sv;
+    }
+
+    pthread_rwlock_unlock(&stat_lock);
     return 0;
 }
 
+int ProfileReporter::getStat(stat_t *stat_){
+    pthread_rwlock_rdlock(&stat_lock);
+    *stat_ = stat;
+    pthread_rwlock_unlock(&stat_lock);
+    return 0;
+}
+
+ProfileReporter::ProfileReporter(){
+    pthread_rwlock_init(&stat_lock, NULL);
+}
+
+ProfileReporter::~ProfileReporter(){
+    pthread_rwlock_destroy(&stat_lock);
+}
 #ifdef TEST_LIB
 
 int main(){
