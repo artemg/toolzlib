@@ -1,4 +1,6 @@
 #include "net.h"
+#include "log.h"
+#include <string.h>
 
 int getSocket(const char *bind_str, void *arg){
 	int on = 1;
