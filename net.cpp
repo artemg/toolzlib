@@ -1,6 +1,13 @@
 #include "net.h"
 #include "log.h"
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
+#include <fcntl.h>
+#include <sys/un.h>
 
 int getSocket(const char *bind_str, void *arg){
 	int on = 1;
