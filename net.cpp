@@ -9,7 +9,9 @@
 #include <fcntl.h>
 #include <sys/un.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 int getSocket(const char *bind_str, void *arg){
 	int on = 1;
