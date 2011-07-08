@@ -8,6 +8,8 @@
 #include <netinet/tcp.h>
 #include <fcntl.h>
 #include <sys/un.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 int getSocket(const char *bind_str, void *arg){
 	int on = 1;
