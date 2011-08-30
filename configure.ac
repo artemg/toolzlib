@@ -9,6 +9,7 @@ LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 AC_CONFIG_MACRO_DIR([m4])
+AC_PROG_LIBTOOL
 AC_PROG_CXX
 
 dnl Output
