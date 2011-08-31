@@ -1,5 +1,6 @@
-#include "net.h"
-#include "log.h"
+#include "toolz/net.h"
+#include "toolz/log.h"
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>

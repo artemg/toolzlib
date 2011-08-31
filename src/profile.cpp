@@ -1,5 +1,5 @@
-#include "profile.h"
-#include "strings.h"
+#include "toolz/profile.h"
+#include "toolz/strings.h"
 
 #ifndef CLOCK_MONOTONIC_RAW
 #define CLOCK_MONOTONIC_RAW      4
