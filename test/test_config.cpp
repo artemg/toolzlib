@@ -13,5 +13,5 @@ CTestConfig::CTestConfig(){
 
 void CTestConfig::parse_commandline(int argc, char** argv){
     CConfig::parse_commandline(argc, argv);
-    print_config_info();
+//    print_config_info();
 }

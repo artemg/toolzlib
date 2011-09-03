@@ -13,4 +13,4 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 
 dnl Output
-AC_OUTPUT([Makefile src/Makefile])
+AC_OUTPUT([Makefile src/Makefile test/Makefile])

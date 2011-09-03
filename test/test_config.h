@@ -1,4 +1,4 @@
-#include "config.h"
+#include <toolz/config.h>
 
 class CTestConfig : public CConfig {
 public:

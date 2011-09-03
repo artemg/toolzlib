@@ -3,7 +3,7 @@
 void log_(int level, void *arg, const char *format, ...){
 	va_list va;
 	va_start(va, format);
-		vfprintf(stderr, format, va);
+//		vfprintf(stderr, format, va);
 	va_end(va);
 }
 
