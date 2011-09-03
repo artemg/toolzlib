@@ -4,7 +4,7 @@ dnl Germanov Artem <ru.netz@gmail.com>
 dnl Init
 AC_INIT([libtoolz],[0.1])
 AC_CONFIG_SRCDIR([src/config.cpp])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([color-tests])
 LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
