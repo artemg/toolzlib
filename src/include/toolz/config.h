@@ -17,16 +17,6 @@
 
 using namespace std;
 
-
-
-/*
- *
- *
- *
- * TODO add callback functions
- *
- */
-
 // config sources in incrementing priority
 enum Econfig_param_source{ DEFAULT_VAL, CONFIG_FILE, COMMAND_LINE };
 
@@ -36,9 +26,13 @@ class CConfig{
 public:
 
     ~CConfig();
+    // we want to use them as callback functions
+    static void printConfigcb(CConfig *conf);
+    static void parseFilecb(const char *fname, CConfig *conf);
 
-protected:
+    int print_config_info();
     int parsefile(const char *config_filename);
+protected:
     int parse_comandline__(const char *default_conffilename, const char *version, int argc, char** argv);
     int parse_commandline(int32_t argc, char** argv);
     int addIntParam( const char *name, int32_t  *holder, const int32_t  default_value);
@@ -51,12 +45,19 @@ protected:
             const int64_t default_value);
     int addDoubleParam(const char *name, double *holder,
             const double default_value);
+
+    typedef void(*cb_ptr)(CConfig *conf);
+    int addCallback(const char *name, const char *shortname, cb_ptr func);
+
+    typedef void(*cb_1param_ptr)(const char *arg, CConfig *conf);
+    int addCallback1param(const char *name, const char *shortname, cb_1param_ptr func);
+
     // check if str has '/' in the end, if not malloc() new str with ending '/' and free() str
     // return str if '/' exist in the end, or pointer to new malloc()'ed data with string
     void addEndingSlash(char **str);
     void make_full_path(const char *root_dir, const char *sub_dir, char **path);
     int clear_buffers();
-    int print_config_info();
+
 private:
     struct mymap_struct{
         string val;
@@ -92,6 +93,16 @@ private:
         double *holder;
     };
     map<string, double_val> double_map;
+
+    struct callback_val{
+        cb_ptr func;
+    };
+    map<string, callback_val> callback_map;
+
+    struct callback_1param_val{
+        cb_1param_ptr func;
+    };
+    map<string, callback_1param_val> callback_1param_map;
 };
 
 #endif
