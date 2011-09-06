@@ -1,9 +1,11 @@
 #include "toolz/config.h"
+#include <stdlib.h>
 
 using namespace std;
 
 void CConfig::printConfigcb(CConfig *conf){
     conf->print_config_info();
+    exit(0);
 }
 
 void CConfig::parseFilecb(const char *fname, CConfig *conf){
