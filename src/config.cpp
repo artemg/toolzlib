@@ -1,6 +1,16 @@
 #include "toolz/config.h"
+#include <stdlib.h>
 
 using namespace std;
+
+void CConfig::printConfigcb(CConfig *conf){
+    conf->print_config_info();
+    exit(0);
+}
+
+void CConfig::parseFilecb(const char *fname, CConfig *conf){
+    conf->parsefile(fname);
+}
 
 CConfig::~CConfig(){
     map<string, pchar_val>::const_iterator it;
@@ -113,9 +123,11 @@ int CConfig::parsefile(const char *config_filename)
 
 int CConfig::parse_commandline(int argc, char** argv)
 {
-    const int32_t long_options_size = int_map.size() + pchar_map.size() + ushort_map.size() + 1;
+    const size_t long_options_size = int_map.size() + pchar_map.size() \
+        + ushort_map.size() + int64_map.size() + double_map.size() \
+        + callback_map.size() + callback_1param_map.size() + 1;
     struct option *long_options = (struct option *) calloc(long_options_size, sizeof(struct option));
-    int32_t long_option_it = 0;
+    size_t long_option_it = 0;
 
     //disable getopt error reporting
     opterr = 0;
@@ -162,6 +174,26 @@ int CConfig::parse_commandline(int argc, char** argv)
     }
     for(map<string, double_val>::iterator i = double_map.begin();
         i != double_map.end();
+        ++i)
+    {
+        long_options[long_option_it].name    = i->first.c_str();
+        long_options[long_option_it].has_arg = required_argument;
+        long_options[long_option_it].flag    = NULL;
+        long_options[long_option_it].val     = 0;
+        ++long_option_it;
+    }
+    for(map<string, callback_val>::iterator i = callback_map.begin();
+        i != callback_map.end();
+        ++i)
+    {
+        long_options[long_option_it].name    = i->first.c_str();
+        long_options[long_option_it].has_arg = no_argument;
+        long_options[long_option_it].flag    = NULL;
+        long_options[long_option_it].val     = 0;
+        ++long_option_it;
+    }
+    for(map<string, callback_1param_val>::iterator i = callback_1param_map.begin();
+        i != callback_1param_map.end();
         ++i)
     {
         long_options[long_option_it].name    = i->first.c_str();
@@ -242,72 +274,31 @@ int CConfig::parse_commandline(int argc, char** argv)
                     continue;
                 }
             }
+            // find param in callback params
+            {
+                map<string, callback_val>::iterator i = callback_map.find(long_options[option_index].name);
+                if(i != callback_map.end() ){
+                    (*(i->second.func))(this);
+                    LOG(L_DEBUG12, NULL, "Config: called param '%s'\n",
+                        long_options[option_index].name);
+                    continue;
+                }
+            }
+            // find param in callback_1param params
+            {
+                map<string, callback_1param_val>::iterator i = callback_1param_map.find(long_options[option_index].name);
+                if(i != callback_1param_map.end() ){
+                    (*(i->second.func))(optarg, this);
+                    LOG(L_DEBUG12, NULL, "Config: called param '%s'\n",
+                        long_options[option_index].name);
+                    continue;
+                }
+            }
             LOG(L_DEBUG12, NULL, "Config string '%s' ignored\n",
                 long_options[option_index].name);
         }
     }
     free(long_options);
-}
-
-int CConfig::parse_comandline__(const char *default_conffilename,
-    const char *version, int argc, char** argv)
-{
-    char *config_filename = NULL;
-    // get args
-    while(1) {
-        int option_index = 0;
-        static struct option long_options[] = {
-            {"help",        0, 0, 'h'},
-            {"configfile",  1, 0, 'c'},
-            {"version",     0, 0, 'v'},
-            {0, 0, 0, 0}
-        };
-
-        int option = getopt_long (argc, argv, "hc:v",
-            long_options, &option_index
-        );
-        if (option == -1){
-            break;
-        }
-
-        switch (option) {
-            case 0:
-                break;
-
-            case 'h':
-                fprintf (stdout,
-                    "Usage:     %s [-options]                       \n"
-                    "options:                                       \n"
-                    "         -h, --help        This help           \n"
-                    "         -c, --configfile  Config file         \n"
-                    "         -v, --version     Program version     \n"
-                    "\n",
-                    argv[0]
-                );
-                exit(0);
-
-            case 'c':
-                config_filename = optarg;
-                break;
-
-            case 'v':
-                fprintf (stdout, "Version: '%s'\n", version);
-                exit(0);
-
-            case '?':
-                exit (1);
-        }
-    }
-
-    // check another args
-    if (optind < argc){
-        LOG(L_WARN, NULL, "Warning: argument(s) will be ignored: ");
-        while (optind < argc){
-            LOG(L_WARN, NULL, "'%s' ", argv[optind++]);
-        }
-        LOG(L_WARN, NULL, "\n");
-    }
-    return (config_filename==NULL) ? parsefile(default_conffilename) : parsefile(config_filename);
 }
 
 void CConfig::addEndingSlash(char **str){
@@ -417,6 +408,29 @@ int CConfig::addDoubleParam(const char *name, double *holder_,
     return 0;
 }
 
+// return 0 on SUCCESS
+//        -1 if such name is already in map
+int CConfig::addCallback(const char *name, const char *shortname, cb_ptr func)
+{
+    map<string, callback_val>::const_iterator i = callback_map.find(name);
+    if(i != callback_map.end() ) return -1;
+    callback_val x;
+    x.func = func;
+    callback_map[name] = x;
+    return 0;
+}
+
+// return 0 on SUCCESS
+//        -1 if such name is already in map
+int CConfig::addCallback1param(const char *name, const char *shortname, cb_1param_ptr func)
+{
+    map<string, callback_1param_val>::const_iterator i = callback_1param_map.find(name);
+    if(i != callback_1param_map.end() ) return -1;
+    callback_1param_val x;
+    x.func = func;
+    callback_1param_map[name] = x;
+    return 0;
+}
 
 int CConfig::clear_buffers()
 {
@@ -425,6 +439,8 @@ int CConfig::clear_buffers()
     ushort_map.clear();
     int64_map.clear();
     double_map.clear();
+    callback_map.clear();
+    callback_1param_map.clear();
     return 0;
 }
 

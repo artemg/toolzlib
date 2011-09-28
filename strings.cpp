@@ -88,6 +88,28 @@ void str_replace(char *str, char needle, char replace){
     }
 }
 
+size_t str_replace(const char *input_str, const char *pattern, const char *replace,
+        char *out, size_t out_size)
+{
+    const char *it = input_str;
+    size_t out_it = 0;
+    size_t pattern_len = strlen(pattern);
+    size_t replace_len = strlen(replace);
+    const char *pos = NULL;
+
+    while( pos = strstr(it, pattern) ){
+        memcpy(out + out_it, it, pos - it);
+        out_it += (pos - it);
+        memcpy(out + out_it, replace, replace_len);
+        out_it += replace_len;
+        it += (pos - it) + pattern_len;
+    }
+    out[out_it] = '\0';
+    strncat(out, it, out_size - out_it);
+    return 0;
+}
+
+
 void str_rtrim(char *str){
     size_t len = strlen(str);
     while(len > 0){
