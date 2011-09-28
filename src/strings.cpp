@@ -88,6 +88,37 @@ void str_replace(char *str, char needle, char replace){
     }
 }
 
+char *str_rtrim(char *str, char c){
+	if( str == NULL )
+		return NULL;
+    size_t len = strlen(str);
+    while(len > 0){
+        len--; //len = index now
+        if( str[len] == c )
+	{
+            str[len] = '\0';
+        } else {
+            break;
+        }
+    }
+    return str;
+}
+
+char *str_ltrim(char *str, char c){
+	if( str == NULL )
+		return NULL;
+	while( *str == c && *str != '\0' )
+		;
+	return str;
+}
+
+char *str_trim(char *str, char c){
+	return str_rtrim(str_ltrim(str, c), c);
+}
+
+
+
+
 void str_rtrim(char *str){
     size_t len = strlen(str);
     while(len > 0){
