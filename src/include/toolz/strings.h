@@ -14,6 +14,11 @@
 #define LOCALE_CHARSET          "UTF-8"
 #define CONVERT_BUFFER_SIZE     32768
 
+// todo 
+struct str_t {
+    size_t len;
+    unsigned char *data;
+}
 
 char *utf8_lowercase(char *str);
 char *utf8_lowercase_with_replace(char *str);
@@ -98,6 +103,11 @@ inline int CheckByMask(const char *wild, const char *string) {
 
 char *url_encode(char *str, char *buf, size_t buf_len);
 char *url_decode(char *str, char *buf, size_t buf_len);
-
 char *strtolower(char *s);
+
+// http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/lib/libc/string/strlcpy.c
+// http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/lib/libc/string/strlcat.c
+size_t strlcpy(char *dst, const char *src, size_t siz);
+size_t strlcat(char *dst, const char *src, size_t siz);
+
 #endif
