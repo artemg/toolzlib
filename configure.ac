@@ -6,7 +6,7 @@ AC_INIT([libtoolz],[0.1])
 AC_CONFIG_SRCDIR([src/config.cpp])
 #AM_INIT_AUTOMAKE([color-tests])
 AM_INIT_AUTOMAKE()
-LT_PREREQ([2.2])
+dnl LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 AC_CONFIG_MACRO_DIR([m4])
