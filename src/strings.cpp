@@ -13,6 +13,7 @@ char     buff_wchar[CONVERT_BUFFER_SIZE];
 char     buff_utf8[CONVERT_BUFFER_SIZE];
 char     lower_buffer[CONVERT_BUFFER_SIZE];
 
+/* need rewrite 
 char *utf8_lowercase(char *str)
 {
 
@@ -82,6 +83,7 @@ char *utf8_lowercase(char *str)
     buff_utf8[CONVERT_BUFFER_SIZE - buff_utf8_max_len] = 0x00;
     return (char *)buff_utf8;
 }
+*/
 
 void str_replace(char *str, char needle, char replace){
     while(*str != '\0'){
@@ -148,6 +150,7 @@ size_t remove_ending_newline(char *str){
     return len;
 }
 
+/* need rewrite 
 char *utf8_lowercase_with_replace(char *str)
 {
 
@@ -224,6 +227,7 @@ char *utf8_lowercase_with_replace(char *str)
     buff_utf8[CONVERT_BUFFER_SIZE - buff_utf8_max_len] = 0x00;
     return (char *)buff_utf8;
 }
+*/
 
 char to_hex(char code) {
     static char hex[] = "0123456789abcdef";
