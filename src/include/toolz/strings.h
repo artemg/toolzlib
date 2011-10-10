@@ -18,7 +18,7 @@
 struct str_t {
     size_t len;
     unsigned char *data;
-}
+};
 
 char *utf8_lowercase(char *str);
 char *utf8_lowercase_with_replace(char *str);
