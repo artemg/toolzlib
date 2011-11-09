@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 // BAD !!!
 // iconv_t to_wchar = iconv_open("WCHAR_T", LOCALE_CHARSET);
@@ -357,7 +358,6 @@ void hexdump (unsigned char *data, int len){
     }
     buffer = (unsigned char *)malloc(len*10);
     if (buffer == NULL){
-        ERROR_LOG(L_ERROR, "malloc() failed, was needed: '%d' byte(s)", len*10);
         return;
     }
     memset(buffer, 0x00, len*10);
