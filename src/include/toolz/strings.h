@@ -110,4 +110,6 @@ char *strtolower(char *s);
 size_t strlcpy(char *dst, const char *src, size_t siz);
 size_t strlcat(char *dst, const char *src, size_t siz);
 
+void hexdump (unsigned char *data, int len);
+
 #endif

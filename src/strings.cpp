@@ -348,4 +348,43 @@ size_t strlcat(char *dst, const char *src, size_t siz)
 	return(dlen + (s - src));	/* count does not include NUL */
 }
 
+void hexdump (unsigned char *data, int len){
+    int i, m = 0;
+    unsigned char *buffer = NULL;
+    unsigned char line[20];
+    if (len <= 0){
+        return;
+    }
+    buffer = (unsigned char *)malloc(len*10);
+    if (buffer == NULL){
+        ERROR_LOG(L_ERROR, "malloc() failed, was needed: '%d' byte(s)", len*10);
+        return;
+    }
+    memset(buffer, 0x00, len*10);
+    for (i = 0, m = 0; i < len + (16 - (len % 16)); i++, m++){
+        if (i < len){
+            sprintf((char *)(buffer + strlen((const char*)buffer)), "%2.2x ", (unsigned int)data[i]);
+            if (data[i] > 32 && data[i] < 127){
+                line[m] = data[i];
+            } else {
+                line[m] = '.';
+            }
+        } else {
+            sprintf((char *)(buffer + strlen((const char*)buffer)), "   ");
+            line[m] = ' ';
+        }
+        if (i && ((i + 1) % 8 == 0)){
+            sprintf((char *)(buffer + strlen((const char*)buffer)), " ");
+        }
+        if (i && ((i + 1) % 16 == 0)){
+            line[m + 1] = '\00';
+            m = -1;
+            sprintf((char *)(buffer + strlen((const char*)buffer)), " %s\n", line);
+        }
+    }
+    sprintf((char *)(buffer + strlen((const char*)buffer)), "\n");
+    fprintf (stderr, "%s\n", buffer);
+    free(buffer);
+}
+
 
