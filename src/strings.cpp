@@ -349,7 +349,7 @@ size_t strlcat(char *dst, const char *src, size_t siz)
 	return(dlen + (s - src));	/* count does not include NUL */
 }
 
-void hexdump (unsigned char *data, int len){
+void hexdump (char *data, int len){
     int i, m = 0;
     unsigned char *buffer = NULL;
     unsigned char line[20];
