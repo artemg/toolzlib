@@ -356,7 +356,7 @@ void hexdump (char *data, int len){
     if (len <= 0){
         return;
     }
-    buffer = (unsigned char *)malloc(len*10);
+    buffer = (unsigned char *)malloc(len*10); // TODO NEED TO BE REWRITTEN !!!
     if (buffer == NULL){
         return;
     }
@@ -387,4 +387,35 @@ void hexdump (char *data, int len){
     free(buffer);
 }
 
+int CheckByMask(const char *wild, const char *string) {
+  const char *cp = NULL, *mp = NULL;
 
+  while ((*string) && (*wild != '*')) {
+    if ((*wild != *string) && (*wild != '?')) {
+      return 0;
+    }
+    wild++;
+    string++;
+  }
+
+  while (*string) {
+    if (*wild == '*') {
+      if (!*++wild) {
+        return 1;
+      }
+      mp = wild;
+      cp = string+1;
+    } else if ((*wild == *string) || (*wild == '?')) {
+      wild++;
+      string++;
+    } else {
+      wild = mp;
+      string = cp++;
+    }
+  }
+
+  while (*wild == '*') {
+    wild++;
+  }
+  return !*wild;
+}

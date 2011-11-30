@@ -1,5 +1,5 @@
-#ifndef COMMON_STRINGS_H
-#define COMMON_STRINGS_H
+#ifndef TOOLZ_STRINGS_H
+#define TOOLZ_STRINGS_H
 
 #include <string.h>
 #include <wchar.h>
@@ -13,6 +13,11 @@
 
 #define LOCALE_CHARSET          "UTF-8"
 #define CONVERT_BUFFER_SIZE     32768
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 // todo 
 struct str_t {
@@ -68,38 +73,7 @@ inline char *lx_strncat(char *dest, const char *src, size_t dest_size){
 /*----------------------------------------------------------------------*/
 /* Сpавнение стpоки с шаблоном. В шаблоне можно yпотpеблять знаки '?'   */
 /* (любой знак) и '*' (любое количество любых знаков)                   */
-inline int CheckByMask(const char *wild, const char *string) {
-  const char *cp = NULL, *mp = NULL;
-
-  while ((*string) && (*wild != '*')) {
-    if ((*wild != *string) && (*wild != '?')) {
-      return 0;
-    }
-    wild++;
-    string++;
-  }
-
-  while (*string) {
-    if (*wild == '*') {
-      if (!*++wild) {
-        return 1;
-      }
-      mp = wild;
-      cp = string+1;
-    } else if ((*wild == *string) || (*wild == '?')) {
-      wild++;
-      string++;
-    } else {
-      wild = mp;
-      string = cp++;
-    }
-  }
-
-  while (*wild == '*') {
-    wild++;
-  }
-  return !*wild;
-}
+int CheckByMask(const char *wild, const char *string);
 
 char *url_encode(char *str, char *buf, size_t buf_len);
 char *url_decode(char *str, char *buf, size_t buf_len);
@@ -111,5 +85,9 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 size_t strlcat(char *dst, const char *src, size_t siz);
 
 void hexdump(char *data, int len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
