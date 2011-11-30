@@ -86,7 +86,7 @@ char *utf8_lowercase(char *str)
 }
 */
 
-void str_replace(char *str, char needle, char replace){
+void str_replace_char(char *str, char needle, char replace){
     while(*str != '\0'){
         if(*str == needle)
             *str = replace;

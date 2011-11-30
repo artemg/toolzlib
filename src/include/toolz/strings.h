@@ -29,8 +29,8 @@ char *utf8_lowercase(char *str);
 char *utf8_lowercase_with_replace(char *str);
 char *utf8_lowercase_with_replace_my(char *str);
 
-void str_replace(char *str, char needle, char replace);
-size_t str_replace(const char *input_str, const char *pattern, const char *replace, char *out, size_t out_size);
+void str_replace_char(char *str, char needle, char replace);
+size_t str_replace_string(const char *input_str, const char *pattern, const char *replace, char *out, size_t out_size);
 
 void str_rtrim(char *str);
 // remove new line character in the end of string, return strlen of string
