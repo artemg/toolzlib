@@ -9,7 +9,12 @@
 #define L_DEBUG 3
 #define L_DEBUG12 12
 
-void log_(int level, void *arg, const char *format, ...);
+inline void log_(int level, void *arg, const char *format, ...){
+    va_list va;
+    va_start(va, format);
+    vfprintf(stderr, format, va);
+    va_end(va);
+}
 
 #define LOG(args...) log_(args)
 
