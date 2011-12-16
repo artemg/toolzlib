@@ -1,4 +1,5 @@
 #include "toolz/strings.h"
+#include <toolz/log.h>
 #include <wchar.h>
 #include <ctype.h>
 #include <stdint.h>
@@ -262,7 +263,7 @@ char from_hex(char ch) {
 
 char *url_encode(char *str, char *buf, size_t buf_len) {
     if(buf_len < (strlen(str) * 3 + 1)) {
-        fprintf(stderr, "Buffer is too small, at leest %ld bytes needed\n", 
+        LOG(L_DEBUG, NULL, "Buffer is too small, at leest %ld bytes needed\n", 
             (strlen(str) * 3 +1));
         return NULL;
     }
@@ -282,7 +283,7 @@ char *url_encode(char *str, char *buf, size_t buf_len) {
 
 char *url_decode(char *str, char *buf, size_t buf_len) {
     if(buf_len < (strlen(str) + 1)) {
-        fprintf(stderr, "Buffer is too small, at leest %ld bytes needed\n", 
+        LOG(L_DEBUG, NULL, "Buffer is too small, at leest %ld bytes needed\n", 
             (strlen(str) +1));
         return NULL;
     }
