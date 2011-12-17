@@ -2,6 +2,11 @@
 
 int set_log_conf(log_conf_t *conf){
     log_conf = *conf;
+    /*
+    if( log_syslog ){
+        openlog();
+    } 
+    */
     return 0;
 };
 
@@ -9,7 +14,7 @@ void log_main(const char *file, int line, int level, const char *subsystem, cons
     va_list va;
     if( level > log_conf.max_log_level 
         && !(log_conf.subsystem && level < log_conf.max_log_subsystem_level
-                && strcmp(subsystem, log_conf.subsystem) == 0 ) )
+                && subsystem && strcmp(subsystem, log_conf.subsystem) == 0 ) )
     {
         return;
     }
