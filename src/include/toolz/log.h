@@ -23,26 +23,9 @@ static struct log_conf_t log_conf;
 
 int set_log_conf(log_conf_t *conf);
 
-inline void log_(int level, void *arg, const char *format, ...){
-    va_list va;
-    va_start(va, format);
-    vfprintf(stderr, format, va);
-    va_end(va);
-}
-
-// #define LOG(args...) log_(args)
-
-
 
 void log_main(const char *file, int line, int level, const char *subsystem, const char *format, ...);
 #define LOG(level, subsystem, args...)                                           \
     log_main(__FILE__, __LINE__, level, subsystem, args);
-
-inline void _M_LOG(int level, const char *format, ...){
-    va_list va;
-    va_start(va, format);
-    vfprintf(stderr, format, va);
-    va_end(va);
-}
 
 #endif

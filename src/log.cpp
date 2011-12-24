@@ -19,7 +19,7 @@ void log_main(const char *file, int line, int level, const char *subsystem, cons
         return;
     }
 
-    fprintf(stderr, "%dAPP[%s](%s:%d) - ", level, subsystem?subsustem:"", file, line);
+    fprintf(stderr, "%dAPP[%s](%s:%d) - ", level, subsystem?subsystem:"", file, line);
     va_start(va, format);
     vfprintf(stderr, format, va);
     va_end(va);
