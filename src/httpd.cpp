@@ -235,6 +235,14 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     const char *action = NULL;
     eventMapNode *eventMapCursor = NULL;
 
+
+    const char str_delims[] = "/";
+    char *strbuf_it = strdupa(req->uri);
+    const char *action = NULL;
+
+    action       = strsep(&strbuf_it, str_delims);
+    action       = strsep(&strbuf_it, str_delims);
+
     lz_httpd_req_t *lz_req = me->get_free_req();
     if( lz_req == NULL ){
         goto ret;
