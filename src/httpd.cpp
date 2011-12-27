@@ -30,8 +30,12 @@ CHttpd::~CHttpd()
 ;
 };
 
+const char *CHttpd::get_header(lz_httpd_req_t *req, const char *name){
+    return evhttp_find_header(evhttp_request_get_input_headers(req->evreq), name);
+}
+
 const char *CHttpd::get_query_param(lz_httpd_req_t *req, const char *name){
-    if( req->query_params_parsed ){ 
+    if( !req->query_params_parsed ){ 
         evhttp_parse_query(req->evreq->uri, &req->query_params); 
     }
     return evhttp_find_header(&req->query_params, name);
@@ -51,6 +55,7 @@ int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
 
     return (res);
 }
+
 
 
 int CHttpd::accept(const char *bind_str, void *arg){
