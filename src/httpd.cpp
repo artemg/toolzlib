@@ -240,6 +240,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
         goto ret;
     }
     lz_req->query_params_parsed = 0;
+    lz_req->evreq = evreq;
 
     eventMapCursor = me->_eventMap;
     while (eventMapCursor->name != NULL){

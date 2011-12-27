@@ -25,7 +25,6 @@ using namespace std;
 
 
 struct lz_httpd_req_t{
-    void *ptr;
     struct evhttp_request *evreq;
     //lz_pstr_t first_param;
     const char *first_param;
