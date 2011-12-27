@@ -82,7 +82,6 @@ int CHttpd::Init(eventMapNode *eventMap)
     int flag = 1;
 
 
-    evthread_use_pthreads();
 /*
     // check event map
     if (eventMap[0].name == NULL){
