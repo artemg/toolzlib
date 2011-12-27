@@ -85,7 +85,7 @@ int CHttpd::Init(eventMapNode *eventMap)
 
     // check event map
     if (eventMap[0].name == NULL){
-        ERROR_LOG(L_ERROR, "CShttpd::CShttpd eventMap could not be empty\n");
+        //LOG(L_ERROR, "CShttpd::CShttpd eventMap could not be empty\n");
         goto fail;
     }
     _eventMap = eventMap;
