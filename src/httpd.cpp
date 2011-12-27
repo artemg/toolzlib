@@ -82,7 +82,7 @@ int CHttpd::Init(eventMapNode *eventMap)
     int flag = 1;
 
 
-/*
+
     // check event map
     if (eventMap[0].name == NULL){
         ERROR_LOG(L_ERROR, "CShttpd::CShttpd eventMap could not be empty\n");
@@ -90,6 +90,7 @@ int CHttpd::Init(eventMapNode *eventMap)
     }
     _eventMap = eventMap;
 
+/*
     // init all requests and mark as free
     for (i = 0; i < MAX_REQ_QUEUE; i++){
         lx_req *lxreq = new lx_req(this);
