@@ -30,6 +30,29 @@ CHttpd::~CHttpd()
 ;
 };
 
+const char *CHttpd::get_query_param(lz_httpd_req_t *req, const char *name){
+    if( req->query_params_parsed ){ 
+        evhttp_parse_query(req->uri, &req->query_params); 
+    }
+    return evhttp_find_header(&req->query_params, name);
+}
+
+void CHttpd::add_header(lz_httpd_req_t *req, const char *name, const char *value){
+    evhttp_add_header(evhttp_request_get_output_headers(req->evreq), name, value);
+}
+
+int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
+    int res = -1;
+    va_list ap;
+
+    va_start(ap, fmt);
+    res = evbuffer_add_vprintf(evhttp_request_get_output_buffer(req->evreq), fmt, ap);
+    va_end(ap);
+
+    return (res);
+}
+
+
 int CHttpd::accept(const char *bind_str, void *arg){
     int sock = getSocket(bind_str, arg);
     return accept(sock); // TODO CLOSE
@@ -177,6 +200,11 @@ void CHttpd::run()
 // action is done with this 
 int CHttpd::send_reply(lz_httpd_req_t *req){
     evhttp_send_reply(req->evreq, HTTP_OK, "", evhttp_request_get_output_buffer(req->evreq));
+
+    if( req->query_params_parsed ){
+        evhttp_clear_headers(&req->query_params);
+    }
+
     push_free_req(req);
     return 0;
 }
@@ -207,6 +235,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     if( lz_req == NULL ){
         goto ret;
     }
+    req->query_params_parsed = 0;
 
     eventMapCursor = me->_eventMap;
     while (eventMapCursor->name != NULL){

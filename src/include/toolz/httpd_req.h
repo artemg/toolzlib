@@ -29,6 +29,9 @@ struct lz_httpd_req_t{
     struct evhttp_request *evreq;
     //lz_pstr_t first_param;
     const char *first_param;
+
+    struct evkeyvalq query_params;
+    int query_params_parsed:1;
 };
 /*
 httpd_req_init();

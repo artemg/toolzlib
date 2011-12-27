@@ -71,6 +71,10 @@ class CHttpd
         void destroy();
         void shutdown();
 
+        static const char *get_query_param(lz_httpd_req_t *req, const char *name);
+        static void add_header(lz_httpd_req_t *req, const char *name, const char *value);
+        static int add_printf(lz_httpd_req_t *req, const char *fmt, ...);
+
     private:
         struct event_base *ev_base;
         struct evhttp *ev_http;
