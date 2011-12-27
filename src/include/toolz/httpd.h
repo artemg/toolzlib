@@ -77,6 +77,18 @@ class CHttpd
         static int add_printf(lz_httpd_req_t *req, const char *fmt, ...);
 
 
+        struct status_val
+        {
+            int hitcount;
+            int time_sum;
+            double min_exec_time;
+            double max_exec_time;
+            double avg_exec_time;
+            uint64_t more_1sec_exec_time;
+            uint64_t prev_period_req;
+            uint64_t cur_period_req;
+            int period_start_time;
+        };
     private:
         struct event_base *ev_base;
         struct evhttp *ev_http;
@@ -89,6 +101,10 @@ class CHttpd
 
         lz_httpd_req_t *get_free_req();
         void push_free_req(lz_httpd_req_t *req);
+
+
+        int update_statistic(const char *statistic_key, double exec_time);
+        std::map<std::string, status_val> status;
 };
 
 

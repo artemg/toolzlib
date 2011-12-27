@@ -237,8 +237,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
 
 
     const char str_delims[] = "/";
-    char *strbuf_it = strdupa(req->uri);
-    const char *action = NULL;
+    char *strbuf_it = strdupa(evreq->uri);
 
     action       = strsep(&strbuf_it, str_delims);
     action       = strsep(&strbuf_it, str_delims);
@@ -284,3 +283,6 @@ fail:
     goto ret;
 }
 
+int CHttpd::update_statistic(const char *statistic_key, double exec_time){
+;
+}
