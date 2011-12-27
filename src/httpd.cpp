@@ -32,7 +32,7 @@ CHttpd::~CHttpd()
 
 const char *CHttpd::get_query_param(lz_httpd_req_t *req, const char *name){
     if( req->query_params_parsed ){ 
-        evhttp_parse_query(req->uri, &req->query_params); 
+        evhttp_parse_query(req->evreq->uri, &req->query_params); 
     }
     return evhttp_find_header(&req->query_params, name);
 }
