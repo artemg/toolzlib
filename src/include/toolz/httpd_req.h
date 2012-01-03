@@ -31,6 +31,8 @@ struct lz_httpd_req_t{
 
     struct evkeyvalq query_params;
     int query_params_parsed:1;
+    void (*callb)(lz_httpd_req_t *req, void *arg);
+    void *callb_arg;
 };
 /*
 httpd_req_init();

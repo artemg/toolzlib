@@ -59,17 +59,24 @@ class CHttpd
         CHttpd();
         ~CHttpd();
 
+
+
         int Init(eventMapNode *eventMap);
         void run();
         void run_async();
         int accept(int socket);
         int accept(const char *str, void *args);
 
+        int add_destination(const char *addr, int port, int timeout);
         int send_reply(lz_httpd_req_t *req);
+        lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
+        int make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query);
 
         // shutdown callback
         void destroy();
         void shutdown();
+
+        static void request_callb(struct evhttp_request *req, void *arg);
 
         static const char *get_header(lz_httpd_req_t *req, const char *name);
         static const char *get_query_param(lz_httpd_req_t *req, const char *name);
@@ -102,9 +109,16 @@ class CHttpd
         lz_httpd_req_t *get_free_req();
         void push_free_req(lz_httpd_req_t *req);
 
-
         int update_statistic(const char *statistic_key, double exec_time);
         std::map<std::string, status_val> status;
+
+        struct destination_t {
+            const char *addr;
+            int port;
+            int conn_timeout;
+        };
+
+        std::vector<destination_t> destinations;
 };
 
 

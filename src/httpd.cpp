@@ -287,3 +287,60 @@ fail:
 int CHttpd::update_statistic(const char *statistic_key, double exec_time){
 ;
 }
+
+void CHttpd::request_callb(struct evhttp_request *req, void *arg){
+    lz_httpd_req_t *r = (lz_httpd_req_t *)arg;
+    r->callb(r, r->callb_arg); // we must provide r OR req ???
+    //push_free_req(r);
+}
+
+lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg){
+    // todo free mem
+    lz_httpd_req_t *r = get_free_req();
+    if( r == NULL )
+        return NULL;
+    r->callb = callb;
+    r->callb_arg = arg;
+    r->evreq = evhttp_request_new(CHttpd::request_callb, r);
+    if( r->evreq == NULL )
+        return NULL;
+    return r;
+}
+
+int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query){
+    destination_t *d = NULL;
+    int err;
+
+    // 1.  create connection
+    evhttp_connection *evcon_todaemon = evhttp_connection_base_new(
+        ev_base,
+        NULL,
+        d->addr,
+        d->port 
+    );
+    if (evcon_todaemon == NULL){
+        LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_connection_new()"
+            " for IP: '%s' port: '%d'\n",
+            d->addr,
+            d->port
+        );
+        return -1;
+    }
+    // 2. set timeout
+    evhttp_connection_set_timeout(evcon_todaemon, d->conn_timeout);
+
+    // 5. do request
+    err = evhttp_make_request(evcon_todaemon, req->evreq,
+        EVHTTP_REQ_GET, query
+    );
+    if (err == -1){
+        LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_make_request()"
+            " for IP: '%s' port: '%d'\n",
+            d->addr,
+            d->port
+        );
+        return -1;
+    }
+    return 0;
+}
+
