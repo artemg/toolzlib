@@ -86,6 +86,9 @@ class CHttpd
         static int get_post_data(lz_httpd_req_t *req, size_t *size, char **data);
 
 
+        event_base *get_evbase()  __attribute__ ((deprecated)) {
+            return ev_base;
+        }
         struct status_val
         {
             int hitcount;
