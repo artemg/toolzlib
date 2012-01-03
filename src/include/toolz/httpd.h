@@ -82,6 +82,8 @@ class CHttpd
         static const char *get_query_param(lz_httpd_req_t *req, const char *name);
         static void add_header(lz_httpd_req_t *req, const char *name, const char *value);
         static int add_printf(lz_httpd_req_t *req, const char *fmt, ...);
+        static int get_response_code(lz_httpd_req_t *req);
+        static int get_post_data(lz_httpd_req_t *req, size_t *size, char **data);
 
 
         struct status_val

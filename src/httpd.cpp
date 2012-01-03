@@ -45,6 +45,19 @@ void CHttpd::add_header(lz_httpd_req_t *req, const char *name, const char *value
     evhttp_add_header(evhttp_request_get_output_headers(req->evreq), name, value);
 }
 
+int CHttpd::get_response_code(lz_httpd_req_t *req){
+    return evhttp_request_get_response_code(req->evreq);
+}
+
+int CHttpd::get_post_data(lz_httpd_req_t *req, size_t *size, char **data){
+    struct evbuffer *evb;
+    evb = evhttp_request_get_input_buffer(req->evreq);
+    *size = evbuffer_get_length(evb);
+    *data = (char *)evbuffer_pullup(evb, *size);
+    return 0;
+}
+
+
 int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
     int res = -1;
     va_list ap;
