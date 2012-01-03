@@ -20,7 +20,7 @@ extern "C" {
 
 
 // todo 
-struct str_t {
+struct lz_string_str_t {
     size_t len;
     unsigned char *data;
 };
@@ -75,8 +75,8 @@ inline char *lx_strncat(char *dest, const char *src, size_t dest_size){
 /* (любой знак) и '*' (любое количество любых знаков)                   */
 int CheckByMask(const char *wild, const char *string);
 
-char *url_encode(char *str, char *buf, size_t buf_len);
-char *url_decode(char *str, char *buf, size_t buf_len);
+int url_encode(char *str, char *buf, size_t buf_len);
+int url_decode(char *str, char *buf, size_t buf_len);
 char *strtolower(char *s);
 
 // http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/lib/libc/string/strlcpy.c

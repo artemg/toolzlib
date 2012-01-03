@@ -261,11 +261,11 @@ char from_hex(char ch) {
   return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
 }
 
-char *url_encode(char *str, char *buf, size_t buf_len) {
+int url_encode(char *str, char *buf, size_t buf_len) {
     if(buf_len < (strlen(str) * 3 + 1)) {
         LOG(L_DEBUG, NULL, "Buffer is too small, at leest %ld bytes needed\n", 
             (strlen(str) * 3 +1));
-        return NULL;
+        return -1;
     }
     char *pstr = str, *pbuf = buf;
     while (*pstr) {
@@ -278,14 +278,14 @@ char *url_encode(char *str, char *buf, size_t buf_len) {
         pstr++;
     }
     *pbuf = '\0';
-    return buf;
+    return 0;
 }
 
-char *url_decode(char *str, char *buf, size_t buf_len) {
+int url_decode(char *str, char *buf, size_t buf_len) {
     if(buf_len < (strlen(str) + 1)) {
         LOG(L_DEBUG, NULL, "Buffer is too small, at leest %ld bytes needed\n", 
             (strlen(str) +1));
-        return NULL;
+        return -1;
     }
 
     char *pstr = str, *pbuf = buf;
@@ -303,7 +303,7 @@ char *url_decode(char *str, char *buf, size_t buf_len) {
         pstr++;
     }
     *pbuf = '\0';
-    return buf;
+    return 0;
 }
 
 char *strtolower(char *s) {
