@@ -268,7 +268,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
         if (strcmp(action, eventMapCursor->name) == 0){
             flags = eventMapCursor->flags;
             me->process_request(eventMapCursor, lz_req);
-            break;
+            goto ret;
         }
         eventMapCursor++;
     }
@@ -281,7 +281,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
             if (strcmp(action, eventMapCursor->name) == 0){
                 flags = eventMapCursor->flags;
                 me->process_request(eventMapCursor, lz_req);
-                break;
+                goto ret;
             }
             eventMapCursor++;
         }
