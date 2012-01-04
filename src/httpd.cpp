@@ -69,7 +69,101 @@ int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
     return (res);
 }
 
+int CHttpd::print_common_status(lz_httpd_req_t *req){
 
+    struct timeval ti;
+//    gettimeofday(&ti, NULL);
+//    int time_offset=ti.tv_sec - conf->start_time;
+//    int64_t wdays = time_offset/86400; 
+//    int64_t whours = (time_offset - wdays*86400)/3600;
+//    int64_t wmin = (time_offset - wdays*86400  - whours*3600) / 60;
+//    int64_t wsec = time_offset - wdays*86400  - whours*3600 - wmin*60;
+//    char work_str[256];
+    int64_t avg_req = 0;
+    int period_delta;
+
+//    lx_snprintf(work_str, sizeof(work_str), "%ld days %ld hours %ld minutes %ld seconds", 
+//        wdays, whours, wmin, wsec);
+//    char work_time[128];
+//    if(!lx_strftimestamp(work_time, sizeof(work_time), conf->start_time, "%x %X")) {
+//        ERROR_LOG(L_ERROR, "Failed to fill time buffer");
+//        return -1;
+//    }
+
+/*
+    char *git_commit_str_commit = strdup(conf->git_commit);
+    str_replace(git_commit_str_commit, ' ', '\0');
+    evbuffer_add_printf(out,
+            "<html>\n<meta http-equiv=\"Content-Type\" content=\"text/html;"
+            "charset=utf-8\" />\n<head>\n<title>Welcome %s</title>\n</head>\n<body>\n"
+            "<h1>server-status</h1>\n<p>your ip:%s, port %d</p>\n"
+            "<p>country: %s</p>"
+            "<p>request uri: %s</p>"
+            "<p>timeoffset: %i</p>"
+            "<p>git commit: <a href=\"https://github.com/medianet/luxup/commit/%s\">%s</a></p>",
+            lxreq->ip, lxreq->ip,
+            req->remote_port, lxreq->geo, lxreq->uri,time_offset, git_commit_str_commit, conf->git_commit
+            );
+    free(git_commit_str_commit);
+    evbuffer_add_printf(out,
+            "<p>worktime: %s</p>"  
+            "<p>start time: %s</p>",
+            work_str, work_time);
+
+    const map<string, status_val> *status = get_status();
+    map<string, status_val>::const_iterator status_i;
+    if(status->size() > 0) {
+        evbuffer_add_printf(out,
+            "<table border=1 cellspacing='0' cellpadding='3'>\n"  
+            "<tr><th>action/result</th><th>count</th>"
+            "<th>per sec</th><th>per sec in last</th>"
+            "<th>min exec time</th><th>max exec time</th>"
+            "<th>avg exec time</th><th>Request more then 1 sec</th></tr>\n");
+    }
+    FailedMap::const_iterator ci;
+    for (status_i  = status->begin(); status_i != status->end(); status_i++) {
+        const status_val &psv = status_i->second;
+        period_delta = 0;
+        if( psv.prev_period_req > 0) {
+            period_delta += AVG_REQUESTS_SWITCH_PERIOD;
+        }
+        period_delta += ti.tv_sec - psv.period_start_time;
+        avg_req = (psv.prev_period_req > 0 ? psv.prev_period_req : psv.cur_period_req);
+        evbuffer_add_printf(out, "<tr><td>%s</td><td>%d</td><td>%d</td><td>%d minutes: %ld</td>"
+                                "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
+                status_i->first.c_str(),
+                psv.hitcount,
+                (time_offset>0 ? psv.hitcount/time_offset : 1),
+                (period_delta)/60,
+                (psv.prev_period_req + psv.cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
+                                                                              // to prevent devision by zero
+                psv.min_exec_time, 
+                psv.max_exec_time, 
+                psv.avg_exec_time, 
+                psv.more_1sec_exec_time);
+        if((ci=failed.find(status_i->first))!=failed.end()) {
+            uint64_t real_hits = psv.hitcount - ci->second.count;
+            evbuffer_add_printf(out, "<tr><td>real %s</td><td>%ld</td><td>%ld</td><td>%d minutes: %ld</td>"
+                                "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
+                status_i->first.c_str(),
+                real_hits ,
+                (time_offset>0 ? real_hits/time_offset : 1),
+                (period_delta)/60,
+                (psv.prev_period_req + psv.cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
+                                                                              // to prevent devision by zero
+                psv.min_exec_time, 
+                psv.max_exec_time, 
+                psv.avg_exec_time, 
+                psv.more_1sec_exec_time);
+
+        }
+    }
+    if(status->size() > 0) {
+        evbuffer_add_printf(out,"</table>");
+    }
+*/
+    return 0;
+}
 
 int CHttpd::accept(const char *bind_str, void *arg){
     int sock = getSocket(bind_str, arg);
@@ -274,18 +368,29 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     }
 
     // if we didnt find any node, call last node, that is default
-    if (eventMapCursor->name == NULL){
-        // now check for addditional actions
-        eventMapNode *eventMapCursor = me->_eventMap;
-        while (eventMapCursor->name != NULL){
-            if (strcmp(action, eventMapCursor->name) == 0){
-                flags = eventMapCursor->flags;
-                me->process_request(eventMapCursor, lz_req);
-                goto ret;
-            }
-            eventMapCursor++;
+    // now check for addditional actions
+    eventMapCursor = me->_eventMap;
+    while (eventMapCursor->name != NULL){
+        if (strcmp(action, eventMapCursor->name) == 0){
+            flags = eventMapCursor->flags;
+            me->process_request(eventMapCursor, lz_req);
+            goto ret;
         }
+        eventMapCursor++;
     }
+
+    // if we didnt find any node, call last node, that is default
+    // now check for addditional actions
+    /*
+    eventMapNode *eventMapCursor = me->_eventMap;
+    while (eventMapCursor->name != NULL){
+        if (strcmp(action, "actions") == 0){
+            flags = eventMapCursor->flags;
+            me->process_request(eventMapCursor, lz_req);
+            goto ret;
+        }
+        eventMapCursor++;
+    }*/
 
     // no action found show error
     goto fail;
@@ -357,3 +462,32 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, co
     return 0;
 }
 
+void CHttpd::eShowActions(lz_httpd_req_t *req){
+    add_printf(req,
+        "<HTML>\n"
+        "<HEAD></HEAD>\n"
+        "<BODY>\n"
+        "<TABLE>\n"
+    );
+
+    add_printf(req,
+        "<tr><td>All supported actions</td></tr>\n"
+    );
+/*
+    while (eventMapCursor->name != NULL){
+        add_printf(req,
+            "<tr><td><a href=\"/%s\">/%s</a></td></tr>\n",
+            eventMapCursor->name,
+            eventMapCursor->name
+        );
+        eventMapCursor++;
+    }
+*/
+    add_printf(req,
+        "</TABLE>\n"
+        "</BODY>\n"
+        "</HTML>\n"
+    );
+
+    send_reply(req);
+}
