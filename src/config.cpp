@@ -548,7 +548,7 @@ int CConfig::print_config_info()
         if( max_len_3 < i->second.source.size() )
             max_len_3 = i->second.source.size();
     }
-    // отступы
+    // padding
     max_len_1 += 2;
     max_len_2 += 2;
     max_len_3 += 2;
@@ -559,10 +559,10 @@ int CConfig::print_config_info()
     printf("\n");
     // head
     printf("%-*s%-*s%-*s\n",
-            max_len_1, "parametr",
+            max_len_1, "param",
             max_len_2, "value",
             max_len_3, "source");
-    // hrad line
+    // head line
     for(int i=0; i<max_len_1+max_len_2+max_len_3; ++i)
         printf("=");
     printf("\n");
