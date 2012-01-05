@@ -400,11 +400,11 @@ ret:
     return;
 fail:
     evhttp_send_reply(evreq, HTTP_BADREQUEST, "", NULL);
-    if( req->query_params_parsed ){
-        evhttp_clear_headers(&req->query_params);
+    if( lz_req->query_params_parsed ){
+        evhttp_clear_headers(&lz_req->query_params);
     }
 
-    push_free_req(req);
+    me->push_free_req(lz_req);
     goto ret;
 }
 

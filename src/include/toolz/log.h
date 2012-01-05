@@ -19,7 +19,6 @@ struct log_conf_t {
     int max_log_subsystem_level;
 };
 
-static struct log_conf_t log_conf;
 
 int set_log_conf(log_conf_t *conf);
 

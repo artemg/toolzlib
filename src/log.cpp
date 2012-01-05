@@ -1,5 +1,8 @@
 #include <toolz/log.h>
 
+static struct log_conf_t log_conf = {1,1,0,NULL,0};
+
+
 int set_log_conf(log_conf_t *conf){
     log_conf = *conf;
     /*
