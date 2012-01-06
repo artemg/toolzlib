@@ -14,6 +14,7 @@
 #include <event.h>
 #include <evhttp.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -25,6 +26,7 @@ using namespace std;
 
 
 struct lz_httpd_req_t{
+    evhttp_connection *evcon;
     struct evhttp_request *evreq;
     //lz_pstr_t first_param;
     const char *first_param;
@@ -33,6 +35,8 @@ struct lz_httpd_req_t{
     int query_params_parsed:1;
     void (*callb)(lz_httpd_req_t *req, void *arg);
     void *callb_arg;
+    struct timespec start_time;
+    struct status_t *stat; //status to be updated 
 };
 /*
 httpd_req_init();

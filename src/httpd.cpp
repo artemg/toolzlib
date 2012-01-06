@@ -30,6 +30,9 @@ CHttpd::~CHttpd()
 ;
 };
 
+// 5 min
+#define AVG_REQUESTS_SWITCH_PERIOD 300
+
 const char *CHttpd::get_header(lz_httpd_req_t *req, const char *name){
     return evhttp_find_header(evhttp_request_get_input_headers(req->evreq), name);
 }
@@ -73,6 +76,7 @@ int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
 int CHttpd::print_common_status(lz_httpd_req_t *req){
 
     struct timeval ti;
+    int time_offset = 1; // TODO
 //    gettimeofday(&ti, NULL);
 //    int time_offset=ti.tv_sec - conf->start_time;
 //    int64_t wdays = time_offset/86400; 
@@ -106,63 +110,70 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
             req->remote_port, lxreq->geo, lxreq->uri,time_offset, git_commit_str_commit, conf->git_commit
             );
     free(git_commit_str_commit);
+
     evbuffer_add_printf(out,
             "<p>worktime: %s</p>"  
             "<p>start time: %s</p>",
             work_str, work_time);
-
-    const map<string, status_val> *status = get_status();
-    map<string, status_val>::const_iterator status_i;
-    if(status->size() > 0) {
-        evbuffer_add_printf(out,
+*/
+//    const map<string, status_val> *status = get_status();
+//    map<string, status_val>::const_iterator status_i;
+//    if(status->size() > 0) {
+        CHttpd::add_printf(req,
+            "<html>\n<meta http-equiv=\"Content-Type\" content=\"text/html;"
+            "charset=utf-8\" />\n<head>\n<title>Welcome %s</title>\n</head>\n<body>\n"
             "<table border=1 cellspacing='0' cellpadding='3'>\n"  
             "<tr><th>action/result</th><th>count</th>"
             "<th>per sec</th><th>per sec in last</th>"
             "<th>min exec time</th><th>max exec time</th>"
             "<th>avg exec time</th><th>Request more then 1 sec</th></tr>\n");
-    }
-    FailedMap::const_iterator ci;
-    for (status_i  = status->begin(); status_i != status->end(); status_i++) {
-        const status_val &psv = status_i->second;
+    for(eventMapNode *c = _eventMap; c->name != NULL; c++){
+        status_t *st = &c->stat;
         period_delta = 0;
-        if( psv.prev_period_req > 0) {
+        if( st->prev_period_req > 0) {
             period_delta += AVG_REQUESTS_SWITCH_PERIOD;
         }
-        period_delta += ti.tv_sec - psv.period_start_time;
-        avg_req = (psv.prev_period_req > 0 ? psv.prev_period_req : psv.cur_period_req);
-        evbuffer_add_printf(out, "<tr><td>%s</td><td>%d</td><td>%d</td><td>%d minutes: %ld</td>"
+        period_delta += ti.tv_sec - st->period_start_time;
+        avg_req = (st->prev_period_req > 0 ? st->prev_period_req : st->cur_period_req);
+        CHttpd::add_printf(req, "<tr><td>%s</td><td>%d</td><td>%d</td><td>%d minutes: %ld</td>"
                                 "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
-                status_i->first.c_str(),
-                psv.hitcount,
-                (time_offset>0 ? psv.hitcount/time_offset : 1),
+                c->name,
+                st->hitcount,
+                (time_offset>0 ? st->hitcount/time_offset : 1),
                 (period_delta)/60,
-                (psv.prev_period_req + psv.cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
+                (st->prev_period_req + st->cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
                                                                               // to prevent devision by zero
-                psv.min_exec_time, 
-                psv.max_exec_time, 
-                psv.avg_exec_time, 
-                psv.more_1sec_exec_time);
-        if((ci=failed.find(status_i->first))!=failed.end()) {
-            uint64_t real_hits = psv.hitcount - ci->second.count;
-            evbuffer_add_printf(out, "<tr><td>real %s</td><td>%ld</td><td>%ld</td><td>%d minutes: %ld</td>"
-                                "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
-                status_i->first.c_str(),
-                real_hits ,
-                (time_offset>0 ? real_hits/time_offset : 1),
-                (period_delta)/60,
-                (psv.prev_period_req + psv.cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
-                                                                              // to prevent devision by zero
-                psv.min_exec_time, 
-                psv.max_exec_time, 
-                psv.avg_exec_time, 
-                psv.more_1sec_exec_time);
-
+                st->min_exec_time, 
+                st->max_exec_time, 
+                st->avg_exec_time, 
+                st->more_1sec_exec_time);
+    }
+    for(std::vector<destination_t>::iterator i = destinations.begin();
+        i != destinations.end();
+        ++i)
+    {
+        status_t *st = &i->stat;
+        period_delta = 0;
+        if( st->prev_period_req > 0) {
+            period_delta += AVG_REQUESTS_SWITCH_PERIOD;
         }
+        period_delta += ti.tv_sec - st->period_start_time;
+        avg_req = (st->prev_period_req > 0 ? st->prev_period_req : st->cur_period_req);
+        CHttpd::add_printf(req, "<tr><td>%s:%d</td><td>%d</td><td>%d</td><td>%d minutes: %ld</td>"
+                                "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
+                i->addr,
+                i->port,
+                st->hitcount,
+                (time_offset>0 ? st->hitcount/time_offset : 1),
+                (period_delta)/60,
+                (st->prev_period_req + st->cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
+                                                                              // to prevent devision by zero
+                st->min_exec_time, 
+                st->max_exec_time, 
+                st->avg_exec_time, 
+                st->more_1sec_exec_time);        
     }
-    if(status->size() > 0) {
-        evbuffer_add_printf(out,"</table>");
-    }
-*/
+    CHttpd::add_printf(req,"</table>");
     return 0;
 }
 
@@ -318,6 +329,12 @@ int CHttpd::send_reply(lz_httpd_req_t *req){
         evhttp_clear_headers(&req->query_params);
     }
 
+    timespec cur_time;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &cur_time);
+    double t = diff_timespec(&req->start_time, &cur_time);
+    update_statistic(req->stat, t);
+
+    // now free
     push_free_req(req);
     return 0;
 }
@@ -357,41 +374,19 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     }
     lz_req->query_params_parsed = 0;
     lz_req->evreq = evreq;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &lz_req->start_time);
+    lz_req->stat = NULL;
 
+    // now check for actions
     eventMapCursor = me->_eventMap;
     while (eventMapCursor->name != NULL){
         if (strcmp(action, eventMapCursor->name) == 0){
-            flags = eventMapCursor->flags;
+            lz_req->stat = &eventMapCursor->stat;
             me->process_request(eventMapCursor, lz_req);
             goto ret;
         }
         eventMapCursor++;
     }
-
-    // if we didnt find any node, call last node, that is default
-    // now check for addditional actions
-    eventMapCursor = me->_eventMap;
-    while (eventMapCursor->name != NULL){
-        if (strcmp(action, eventMapCursor->name) == 0){
-            flags = eventMapCursor->flags;
-            me->process_request(eventMapCursor, lz_req);
-            goto ret;
-        }
-        eventMapCursor++;
-    }
-
-    // if we didnt find any node, call last node, that is default
-    // now check for addditional actions
-    /*
-    eventMapNode *eventMapCursor = me->_eventMap;
-    while (eventMapCursor->name != NULL){
-        if (strcmp(action, "actions") == 0){
-            flags = eventMapCursor->flags;
-            me->process_request(eventMapCursor, lz_req);
-            goto ret;
-        }
-        eventMapCursor++;
-    }*/
 
     // no action found show error
     goto fail;
@@ -408,8 +403,34 @@ fail:
     goto ret;
 }
 
-int CHttpd::update_statistic(const char *statistic_key, double exec_time){
-;
+int CHttpd::update_statistic(status_t *st, double exec_time){
+    // Get current time
+    struct timeval ti;
+    gettimeofday(&ti, NULL);
+
+    if( exec_time < st->min_exec_time ){
+        st->min_exec_time = exec_time;
+    }
+    if( exec_time > st->max_exec_time ){
+        st->max_exec_time = exec_time;
+    }
+    double requests = st->hitcount + 1;
+    double k1 = st->hitcount / requests;
+    double k2 = 1 / requests;
+    st->avg_exec_time = k1*st->avg_exec_time + k2*exec_time;
+    if( exec_time >= 1 ){
+        ++st->more_1sec_exec_time;
+    }
+    // must be after computing avg_exec_time
+    st->hitcount += 1;
+    st->time_sum += 0;
+    if(ti.tv_sec > st->period_start_time + AVG_REQUESTS_SWITCH_PERIOD) {
+        st->period_start_time = ti.tv_sec;
+        st->prev_period_req = st->cur_period_req;
+        st->cur_period_req = 0;
+    }
+    st->cur_period_req += 1;
+    return 0;
 }
 
 void CHttpd::request_callb(struct evhttp_request *req, void *arg){
@@ -434,18 +455,23 @@ lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg
     return r;
 }
 
+// TODO free req on failed requests
 int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query){
-    destination_t *d = NULL;
+    if( destination > destinations.size() ){
+        LOG(L_ERROR, NULL, "Unknown dest\n");
+        return -1;
+    }
+    destination_t *d = &destinations[destination];
     int err;
 
     // 1.  create connection
-    evhttp_connection *evcon_todaemon = evhttp_connection_base_new(
+    req->evcon = evhttp_connection_base_new(
         ev_base,
         NULL,
         d->addr,
         d->port 
     );
-    if (evcon_todaemon == NULL){
+    if (req->evcon == NULL){
         LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_connection_new()"
             " for IP: '%s' port: '%d'\n",
             d->addr,
@@ -454,10 +480,10 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, co
         return -1;
     }
     // 2. set timeout
-    evhttp_connection_set_timeout(evcon_todaemon, d->conn_timeout);
+    evhttp_connection_set_timeout(req->evcon, d->conn_timeout);
 
     // 5. do request
-    err = evhttp_make_request(evcon_todaemon, req->evreq,
+    err = evhttp_make_request(req->evcon, req->evreq,
         EVHTTP_REQ_GET, query
     );
     if (err == -1){
@@ -471,7 +497,7 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, co
     return 0;
 }
 
-void CHttpd::eShowActions(lz_httpd_req_t *req){
+void CHttpd::print_actions(lz_httpd_req_t *req){
     add_printf(req,
         "<HTML>\n"
         "<HEAD></HEAD>\n"
@@ -482,7 +508,7 @@ void CHttpd::eShowActions(lz_httpd_req_t *req){
     add_printf(req,
         "<tr><td>All supported actions</td></tr>\n"
     );
-/*
+    eventMapNode *eventMapCursor = _eventMap;
     while (eventMapCursor->name != NULL){
         add_printf(req,
             "<tr><td><a href=\"/%s\">/%s</a></td></tr>\n",
@@ -491,15 +517,20 @@ void CHttpd::eShowActions(lz_httpd_req_t *req){
         );
         eventMapCursor++;
     }
-*/
     add_printf(req,
         "</TABLE>\n"
         "</BODY>\n"
         "</HTML>\n"
     );
 
-    send_reply(req);
 }
+
 int CHttpd::add_destination(const char *addr, int port, int timeout){
-    return 0;
+    destination_t d;
+    d.addr = strdup(addr);
+    d.port = port;
+    d.conn_timeout = timeout;
+    destinations.push_back(d);
+
+    return 0; // TODO more destinations
 }

@@ -25,11 +25,17 @@
 using namespace std;
 
 
-struct failed_val 
-{
-    int count;
+struct status_t{
+    int hitcount;
+    int time_sum;
+    double min_exec_time;
+    double max_exec_time;
+    double avg_exec_time;
+    uint64_t more_1sec_exec_time;
+    uint64_t prev_period_req;
+    uint64_t cur_period_req;
+    int period_start_time;
 };
-
 
 #define LZ_HTTPD_FLAG_DEFAULT 1
 
@@ -38,6 +44,7 @@ struct eventMapNode
     const char *name;
     void (*func)(lz_httpd_req_t *);
     uint32_t    flags;
+    status_t    stat;
 };
 
 
@@ -60,7 +67,7 @@ class CHttpd
         lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
         int make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query);
         int print_common_status(lz_httpd_req_t *req);
-
+        void print_actions(lz_httpd_req_t *req);
         // shutdown callback
         void destroy();
         void shutdown();
@@ -91,27 +98,16 @@ class CHttpd
         lz_httpd_req_t *get_free_req();
         void push_free_req(lz_httpd_req_t *req);
 
-        int update_statistic(const char *statistic_key, double exec_time);
+        int update_statistic(status_t *stat, double exec_time);
+
+
 
         struct destination_t {
             const char *addr;
             int port;
             int conn_timeout;
+            status_t stat;
         };
-        struct status_val{
-            int hitcount;
-            int time_sum;
-            double min_exec_time;
-            double max_exec_time;
-            double avg_exec_time;
-            uint64_t more_1sec_exec_time;
-            uint64_t prev_period_req;
-            uint64_t cur_period_req;
-            int period_start_time;
-        };
-        std::map<std::string, status_val> status;
-
-
         std::vector<destination_t> destinations;
         void eShowActions(lz_httpd_req_t *req);
 };
