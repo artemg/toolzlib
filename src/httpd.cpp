@@ -414,7 +414,10 @@ int CHttpd::update_statistic(const char *statistic_key, double exec_time){
 
 void CHttpd::request_callb(struct evhttp_request *req, void *arg){
     lz_httpd_req_t *r = (lz_httpd_req_t *)arg;
-    r->callb(r, r->callb_arg); // we must provide r OR req ???
+
+    if( r->callb ){
+        r->callb(r, r->callb_arg); // we must provide r OR req ???
+    }
     //push_free_req(r);
 }
 
@@ -496,4 +499,7 @@ void CHttpd::eShowActions(lz_httpd_req_t *req){
     );
 
     send_reply(req);
+}
+int CHttpd::add_destination(const char *addr, int port, int timeout){
+    return 0;
 }
