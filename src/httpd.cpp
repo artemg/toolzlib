@@ -207,8 +207,14 @@ int CHttpd::Init(eventMapNode *eventMap)
         //LOG(L_ERROR, "CShttpd::CShttpd eventMap could not be empty\n");
         goto fail;
     }
-    _eventMap = eventMap;
 
+    _eventMap = eventMap;
+    for (eventMapNode *eventMapCursor = _eventMap;
+        eventMapCursor->name != NULL;
+        eventMapCursor++)
+    {
+        memset(&eventMapCursor->stat, 0, sizeof(eventMapCursor->stat) );
+    }
 /*
     // init all requests and mark as free
     for (i = 0; i < MAX_REQ_QUEUE; i++){
@@ -378,14 +384,15 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     lz_req->stat = NULL;
 
     // now check for actions
-    eventMapCursor = me->_eventMap;
-    while (eventMapCursor->name != NULL){
+    for (eventMapNode *eventMapCursor = me->_eventMap;
+        eventMapCursor->name != NULL;
+        eventMapCursor++)
+    {
         if (strcmp(action, eventMapCursor->name) == 0){
             lz_req->stat = &eventMapCursor->stat;
             me->process_request(eventMapCursor, lz_req);
             goto ret;
         }
-        eventMapCursor++;
     }
 
     // no action found show error
