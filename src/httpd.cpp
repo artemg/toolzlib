@@ -537,6 +537,7 @@ int CHttpd::add_destination(const char *addr, int port, int timeout){
     d.addr = strdup(addr);
     d.port = port;
     d.conn_timeout = timeout;
+    memset(&d.stat, 0, sizeof(d.stat) );
     destinations.push_back(d);
 
     return 0; // TODO more destinations
