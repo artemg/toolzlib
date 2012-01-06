@@ -81,9 +81,8 @@ int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
 int CHttpd::print_common_status(lz_httpd_req_t *req){
 
     struct timeval ti;
-    int time_offset = 1; // TODO
-//    gettimeofday(&ti, NULL);
-//    int time_offset=ti.tv_sec - conf->start_time;
+    gettimeofday(&ti, NULL);
+    int time_offset=ti.tv_sec - start_time.tv_sec;
 //    int64_t wdays = time_offset/86400; 
 //    int64_t whours = (time_offset - wdays*86400)/3600;
 //    int64_t wmin = (time_offset - wdays*86400  - whours*3600) / 60;
@@ -101,8 +100,6 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
 //    }
 
 /*
-    char *git_commit_str_commit = strdup(conf->git_commit);
-    str_replace(git_commit_str_commit, ' ', '\0');
     evbuffer_add_printf(out,
             "<html>\n<meta http-equiv=\"Content-Type\" content=\"text/html;"
             "charset=utf-8\" />\n<head>\n<title>Welcome %s</title>\n</head>\n<body>\n"
@@ -110,11 +107,9 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
             "<p>country: %s</p>"
             "<p>request uri: %s</p>"
             "<p>timeoffset: %i</p>"
-            "<p>git commit: <a href=\"https://github.com/medianet/luxup/commit/%s\">%s</a></p>",
             lxreq->ip, lxreq->ip,
             req->remote_port, lxreq->geo, lxreq->uri,time_offset, git_commit_str_commit, conf->git_commit
             );
-    free(git_commit_str_commit);
 
     evbuffer_add_printf(out,
             "<p>worktime: %s</p>"  
@@ -131,7 +126,7 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
             "<tr><th>action/result</th><th>count</th>"
             "<th>per sec</th><th>per sec in last</th>"
             "<th>min exec time</th><th>max exec time</th>"
-            "<th>avg exec time</th><th>Request more then 1 sec</th></tr>\n");
+            "<th>avg exec time</th><th>exec time > 1s</th></tr>\n");
     for(eventMapNode *c = _eventMap; c->name != NULL; c++){
         status_t *st = &c->stat;
         period_delta = 0;
@@ -176,7 +171,7 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
                 st->min_exec_time, 
                 st->max_exec_time, 
                 st->avg_exec_time, 
-                st->more_1sec_exec_time);        
+                st->more_1sec_exec_time);
     }
     CHttpd::add_printf(req,"</table>");
     return 0;
@@ -204,7 +199,7 @@ int CHttpd::Init(eventMapNode *eventMap)
     int32_t server_sock     = -1;
     //struct linger ling      = {1, conf->timeout_timewait};
     int flag = 1;
-
+    gettimeofday(&start_time, NULL); 
 
 
     // check event map

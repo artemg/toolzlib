@@ -110,6 +110,7 @@ class CHttpd
         };
         std::vector<destination_t> destinations;
         void eShowActions(lz_httpd_req_t *req);
+        timeval start_time;
 };
 
 
