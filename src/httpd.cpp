@@ -20,6 +20,11 @@
 #include <event2/thread.h>
 #include <event2/event_struct.h>
 
+#ifndef CLOCK_MONOTONIC_RAW
+#define CLOCK_MONOTONIC_RAW 4
+#endif
+
+
 CHttpd::CHttpd()
 {
     evthread_use_pthreads();
