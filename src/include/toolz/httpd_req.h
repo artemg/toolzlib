@@ -24,6 +24,7 @@
 
 using namespace std;
 
+class CHttpd;
 
 struct lz_httpd_req_t{
     evhttp_connection *evcon;
@@ -37,6 +38,7 @@ struct lz_httpd_req_t{
     void *callb_arg;
     struct timespec start_time;
     struct status_t *stat; //status to be updated 
+    CHttpd *httpd;
 };
 /*
 httpd_req_init();

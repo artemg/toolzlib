@@ -446,7 +446,15 @@ void CHttpd::request_callb(struct evhttp_request *req, void *arg){
     if( r->callb ){
         r->callb(r, r->callb_arg); // we must provide r OR req ???
     }
-    //push_free_req(r);
+
+    timespec cur_time;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &cur_time);
+    double t = diff_timespec(&r->start_time, &cur_time);
+    r->httpd->update_statistic(r->stat, t);
+
+    evhttp_request_free(r->evreq);
+    evhttp_connection_free(r->evcon);
+    r->httpd->push_free_req(r);
 }
 
 lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg){
@@ -454,9 +462,13 @@ lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg
     lz_httpd_req_t *r = get_free_req();
     if( r == NULL )
         return NULL;
+    r->evcon = NULL;
+    r->first_param = NULL;
+    r->query_params_parsed = 0;
     r->callb = callb;
     r->callb_arg = arg;
     r->evreq = evhttp_request_new(CHttpd::request_callb, r);
+    r->httpd = this;
     if( r->evreq == NULL )
         return NULL;
     return r;
@@ -469,6 +481,8 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, co
         return -1;
     }
     destination_t *d = &destinations[destination];
+    clock_gettime(CLOCK_MONOTONIC_RAW, &req->start_time);
+    req->stat = &d->stat;
     int err;
 
     // 1.  create connection

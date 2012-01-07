@@ -85,6 +85,7 @@ class CHttpd
         event_base *get_evbase()  __attribute__ ((deprecated)) {
             return ev_base;
         }
+
     private:
         struct event_base *ev_base;
         struct evhttp *ev_http;
@@ -98,9 +99,10 @@ class CHttpd
         lz_httpd_req_t *get_free_req();
         void push_free_req(lz_httpd_req_t *req);
 
-        int update_statistic(status_t *stat, double exec_time);
 
 
+
+        int update_statistic(status_t *stat, double exec_time); 
 
         struct destination_t {
             const char *addr;
