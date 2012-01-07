@@ -452,7 +452,7 @@ void CHttpd::request_callb(struct evhttp_request *req, void *arg){
     double t = diff_timespec(&r->start_time, &cur_time);
     r->httpd->update_statistic(r->stat, t);
 
-    evhttp_request_free(r->evreq);
+//    evhttp_request_free(r->evreq);
     evhttp_connection_free(r->evcon);
     r->httpd->push_free_req(r);
 }
