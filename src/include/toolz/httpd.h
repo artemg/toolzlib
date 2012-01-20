@@ -66,6 +66,7 @@ class CHttpd
         int send_reply(lz_httpd_req_t *req);
         lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
         int make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query);
+        int make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, int http_type, const char *query);
         int print_common_status(lz_httpd_req_t *req);
         void print_actions(lz_httpd_req_t *req);
         // shutdown callback

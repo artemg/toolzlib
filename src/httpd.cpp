@@ -411,10 +411,16 @@ fail:
 }
 
 int CHttpd::update_statistic(status_t *st, double exec_time){
+    if( st == NULL )
+        return 0;
+
     // Get current time
     struct timeval ti;
     gettimeofday(&ti, NULL);
 
+    if( st->hitcount == 0 ){
+        st->min_exec_time = exec_time;
+    }
     if( exec_time < st->min_exec_time ){
         st->min_exec_time = exec_time;
     }
@@ -473,6 +479,46 @@ lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg
         return NULL;
     return r;
 }
+
+// TODO free req on failed requests
+int CHttpd::make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, int http_type, const char *query){
+    int err;
+    // do not update any statistic
+    req->stat = NULL;
+
+    // 1.  create connection
+    req->evcon = evhttp_connection_base_new(
+        ev_base,
+        NULL,
+        addr,
+        port 
+    );
+    if (req->evcon == NULL){
+        LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_connection_new()"
+            " for IP: '%s' port: '%d'\n",
+            addr,
+            port
+        );
+        return -1;
+    }
+    // 2. set timeout
+    evhttp_connection_set_timeout(req->evcon, conn_timeout);
+
+    // 5. do request
+    err = evhttp_make_request(req->evcon, req->evreq,
+        EVHTTP_REQ_GET, query
+    );
+    if (err == -1){
+        LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_make_request()"
+            " for IP: '%s' port: '%d'\n",
+            addr,
+            port
+        );
+        return -1;
+    }
+    return 0;
+}
+
 
 // TODO free req on failed requests
 int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query){
