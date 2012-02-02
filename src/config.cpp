@@ -444,6 +444,147 @@ int CConfig::clear_buffers()
     return 0;
 }
 
+int CConfig::print_config_info(char *out_buf, size_t out_buf_size)
+{
+    size_t out_buf_it = 0;
+
+    map<string, CConfig::mymap_struct> map_str;
+    for(map<string, int_val>::const_iterator i = int_map.begin();
+            i != int_map.end();
+            ++i)
+    {
+        mymap_struct x;
+        char buf[256];
+        lx_snprintf(buf, sizeof(buf), "%d", *(i->second.holder));
+        x.val        = buf;
+        if( i->second.source == DEFAULT_VAL ){
+            x.source = "default_val";
+        }else if( i->second.source == CONFIG_FILE ){
+            x.source = "config_file";
+        }else if( i->second.source == COMMAND_LINE ){
+            x.source = "command_line";
+        }
+        map_str[i->first] = x;
+    }
+
+    for(map<string, pchar_val>::const_iterator i = pchar_map.begin();
+            i != pchar_map.end();
+            ++i)
+    {
+        mymap_struct x;
+        x.val        = (*(i->second.holder) == NULL) ?  "NULL" : *(i->second.holder);
+        if( i->second.source == DEFAULT_VAL ){
+            x.source = "default_val";
+        }else if( i->second.source == CONFIG_FILE ){
+            x.source = "config_file";
+        }else if( i->second.source == COMMAND_LINE ){
+            x.source = "command_line";
+        }
+        map_str[i->first] = x;
+    }
+
+    for(map<string, ushort_val>::const_iterator i = ushort_map.begin();
+            i != ushort_map.end();
+            ++i)
+    {
+        mymap_struct x;
+        char buf[256];
+        lx_snprintf(buf, sizeof(buf), "%u", *(i->second.holder));
+        x.val        = buf;
+        if( i->second.source == DEFAULT_VAL ){
+            x.source = "default_val";
+        }else if( i->second.source == CONFIG_FILE ){
+            x.source = "config_file";
+        }else if( i->second.source == COMMAND_LINE ){
+            x.source = "command_line";
+        }
+        map_str[i->first] = x;
+    }
+
+    for(map<string, int64_val>::const_iterator i = int64_map.begin();
+            i != int64_map.end();
+            ++i)
+    {
+        mymap_struct x;
+        char buf[256];
+        lx_snprintf(buf, sizeof(buf), "%ld", *(i->second.holder));
+        x.val        = buf;
+        if( i->second.source == DEFAULT_VAL ){
+            x.source = "default_val";
+        }else if( i->second.source == CONFIG_FILE ){
+            x.source = "config_file";
+        }else if( i->second.source == COMMAND_LINE ){
+            x.source = "command_line";
+        }
+        map_str[i->first] = x;
+    }
+
+    for(map<string, double_val>::const_iterator i = double_map.begin();
+            i != double_map.end();
+            ++i)
+    {
+        mymap_struct x;
+        char buf[256];
+        lx_snprintf(buf, sizeof(buf), "%f", *(i->second.holder));
+        x.val        = buf;
+        if( i->second.source == DEFAULT_VAL ){
+            x.source = "default_val";
+        }else if( i->second.source == CONFIG_FILE ){
+            x.source = "config_file";
+        }else if( i->second.source == COMMAND_LINE ){
+            x.source = "command_line";
+        }
+        map_str[i->first] = x;
+    }
+    // now make it pretty =)
+    // find max length
+    uint16_t max_len_1 = 0, max_len_2 = 0, max_len_3 = 0;
+    for(map<string, mymap_struct>::const_iterator i = map_str.begin();
+            i != map_str.end();
+            ++i)
+    {
+        if( max_len_1 < i->first.size() )
+            max_len_1 = i->first.size();
+        if( max_len_2 < i->second.val.size() )
+            max_len_2 = i->second.val.size();
+        if( max_len_3 < i->second.source.size() )
+            max_len_3 = i->second.source.size();
+    }
+    // padding
+    max_len_1 += 2;
+    max_len_2 += 2;
+    max_len_3 += 2;
+
+    // head line
+    for(int i=0; i<max_len_1+max_len_2+max_len_3; ++i)
+        out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "=");
+    out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "\n");
+    // head
+    out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "%-*s%-*s%-*s\n",
+            max_len_1, "param",
+            max_len_2, "value",
+            max_len_3, "source");
+    // head line
+    for(int i=0; i<max_len_1+max_len_2+max_len_3; ++i)
+        out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "=");
+    out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "\n");
+    // data
+    for(map<string, mymap_struct>::const_iterator i = map_str.begin();
+            i != map_str.end();
+            ++i)
+    {
+        out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "%-*s%-*s%-*s\n",
+            max_len_1, i->first.c_str(),
+            max_len_2, i->second.val.c_str(),
+            max_len_3, i->second.source.c_str());
+    }
+    // bottom line
+    for(int i=0; i<max_len_1+max_len_2+max_len_3; ++i)
+        out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "=");
+    out_buf_it += snprintf(out_buf + out_buf_it, out_buf_size - out_buf_it, "\n");
+    return 0;
+}
+
 int CConfig::print_config_info()
 {
     map<string, CConfig::mymap_struct> map_str;

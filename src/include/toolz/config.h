@@ -31,6 +31,7 @@ public:
     static void parseFilecb(const char *fname, CConfig *conf);
 
     int print_config_info();
+    int print_config_info(char *buf, size_t buf_size);
     int parsefile(const char *config_filename);
 protected:
     int parse_comandline__(const char *default_conffilename, const char *version, int argc, char** argv);
