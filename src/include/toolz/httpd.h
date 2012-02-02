@@ -38,6 +38,10 @@ struct status_t{
 };
 
 #define LZ_HTTPD_FLAG_DEFAULT 1
+#define LZ_HTTPD_FLAG_URL_MATCH_EXACT 2
+#define LZ_HTTPD_FLAG_URL_START_WITH 4
+#define LZ_HTTPD_FLAG_URL_REGEX 8
+#define LZ_HTTPD_FLAG_SIGNAL 16
 
 struct eventMapNode
 {
@@ -87,6 +91,8 @@ class CHttpd
             return ev_base;
         }
 
+        int custom_perf_counter_add_stat(size_t id, double exec_time);
+        size_t custom_perf_counter_add(std::string name);
     private:
         struct event_base *ev_base;
         struct evhttp *ev_http;
@@ -112,6 +118,16 @@ class CHttpd
             status_t stat;
         };
         std::vector<destination_t> destinations;
+        
+        struct custom_perf_counter_el_t{
+            std::string name;
+            status_t stat;            
+        };
+        typedef std::vector<custom_perf_counter_el_t> custom_perf_counter_t;
+        custom_perf_counter_t custom_perf_counters;
+
+
+
         void eShowActions(lz_httpd_req_t *req);
         timeval start_time;
 };

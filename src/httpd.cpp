@@ -127,6 +127,8 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
             "<th>per sec</th><th>per sec in last</th>"
             "<th>min exec time</th><th>max exec time</th>"
             "<th>avg exec time</th><th>exec time > 1s</th></tr>\n");
+
+    // PRINT STATISTIC PER ACTIONS
     for(eventMapNode *c = _eventMap; c->name != NULL; c++){
         status_t *st = &c->stat;
         period_delta = 0;
@@ -148,6 +150,7 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
                 st->avg_exec_time, 
                 st->more_1sec_exec_time);
     }
+    // PRINT STATISTIC PER DESTINATIONS
     for(std::vector<destination_t>::iterator i = destinations.begin();
         i != destinations.end();
         ++i)
@@ -163,6 +166,31 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
                                 "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
                 i->addr,
                 i->port,
+                st->hitcount,
+                (time_offset>0 ? st->hitcount/time_offset : 1),
+                (period_delta)/60,
+                (st->prev_period_req + st->cur_period_req)/(period_delta + 1),// + 1 if it is not well defined
+                                                                              // to prevent devision by zero
+                st->min_exec_time, 
+                st->max_exec_time, 
+                st->avg_exec_time, 
+                st->more_1sec_exec_time);
+    }
+    // PRINT STATISTIC PER CUSTOM COUNTERS
+    for(custom_perf_counter_t::iterator i = custom_perf_counters.begin();
+        i != custom_perf_counters.end();
+        ++i)
+    {
+        status_t *st = &i->stat;
+        period_delta = 0;
+        if( st->prev_period_req > 0) {
+            period_delta += AVG_REQUESTS_SWITCH_PERIOD;
+        }
+        period_delta += ti.tv_sec - st->period_start_time;
+        avg_req = (st->prev_period_req > 0 ? st->prev_period_req : st->cur_period_req);
+        CHttpd::add_printf(req, "<tr><td>%s</td><td>%d</td><td>%d</td><td>%d minutes: %ld</td>"
+                                "<td>%f</td><td>%f</td><td>%f</td><td>%ld</td></tr>\n",
+                i->name.c_str(),
                 st->hitcount,
                 (time_offset>0 ? st->hitcount/time_offset : 1),
                 (period_delta)/60,
@@ -213,6 +241,35 @@ int CHttpd::Init(eventMapNode *eventMap)
         eventMapCursor->name != NULL;
         eventMapCursor++)
     {
+        /*
+        if( eventMapCursor->flags && LZ_HTTPD_FLAG_URL_MATCH_EXACT ){
+            LOG(L_ERROR, "toolzlib", "CHttpd::Init LZ_HTTPD_FLAG_URL_MATCH_EXACT not implemented\n");
+            return -1;
+        }
+        if( eventMapCursor->flags && LZ_HTTPD_FLAG_URL_REGEX ){
+            LOG(L_ERROR, "toolzlib", "CHttpd::Init LZ_HTTPD_FLAG_URL_REGEX not implemented\n");
+            return -1;
+        }
+        if( eventMapCursor->flags && LZ_HTTPD_FLAG_SIGNAL ){
+            // in name is signal number
+            // in fn is callb
+            if( eventMapCursor->fn == NULL ){
+                if( signal(eventMapCursor->name, SIG_IGN) == SIG_ERR ){
+                    LOG(L_ERROR, "toolzlib", "CHttpd::Init setting signal error\n");
+                    return -1;
+                }
+            } else {
+                signalfd();
+                struct event *ev = event_new(ev_base, sfd, EV_READ | EV_PERSIST,
+                    signal_callb, req);
+                if( event_add(ev, NULL) != 0 ){
+                    return -1;
+                }
+            }
+        }
+        */
+
+
         memset(&eventMapCursor->stat, 0, sizeof(eventMapCursor->stat) );
     }
 /*
@@ -601,4 +658,18 @@ int CHttpd::add_destination(const char *addr, int port, int timeout){
     destinations.push_back(d);
 
     return 0; // TODO more destinations
+}
+
+int CHttpd::custom_perf_counter_add_stat(size_t id, double exec_time){
+    if( id > custom_perf_counters.size() ){
+        return -1;
+    }
+    return update_statistic(&custom_perf_counters[id].stat, exec_time);
+}
+size_t CHttpd::custom_perf_counter_add(std::string name){
+    custom_perf_counter_el_t t;
+    memset(&t.stat, 0, sizeof(t.stat));
+    t.name = name;
+    custom_perf_counters.push_back(t);
+    return custom_perf_counters.size() - 1;
 }
