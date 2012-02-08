@@ -54,6 +54,10 @@ void CHttpd::add_header(lz_httpd_req_t *req, const char *name, const char *value
     evhttp_add_header(evhttp_request_get_output_headers(req->evreq), name, value);
 }
 
+void CHttpd::set_response_code(lz_httpd_req_t *req, int status_code){
+    req->response_status_code = status_code;
+}
+
 int CHttpd::get_response_code(lz_httpd_req_t *req){
     return evhttp_request_get_response_code(req->evreq);
 }
@@ -386,7 +390,7 @@ void CHttpd::run()
 
 // action is done with this 
 int CHttpd::send_reply(lz_httpd_req_t *req){
-    evhttp_send_reply(req->evreq, HTTP_OK, "", evhttp_request_get_output_buffer(req->evreq));
+    evhttp_send_reply(req->evreq, req->response_status_code, "", evhttp_request_get_output_buffer(req->evreq));
 
     if( req->query_params_parsed ){
         evhttp_clear_headers(&req->query_params);
@@ -435,10 +439,12 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     if( lz_req == NULL ){
         goto ret;
     }
+    // init request
     lz_req->query_params_parsed = 0;
     lz_req->evreq = evreq;
     clock_gettime(CLOCK_MONOTONIC_RAW, &lz_req->start_time);
     lz_req->stat = NULL;
+    lz_req->response_status_code = HTTP_OK; // default return status
 
     // now check for actions
     for (eventMapNode *eventMapCursor = me->_eventMap;

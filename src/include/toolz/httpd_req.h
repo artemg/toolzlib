@@ -38,7 +38,8 @@ struct lz_httpd_req_t{
     void *callb_arg;
     struct timespec start_time;
     struct status_t *stat; //status to be updated 
-    CHttpd *httpd;
+    int response_status_code;
+    CHttpd *httpd; // base of request
 };
 /*
 httpd_req_init();
