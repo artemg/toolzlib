@@ -25,7 +25,7 @@ struct log_conf_t {
 };
 
 
-int set_log_conf(log_conf_t *conf);
+int set_log_conf(struct log_conf_t *conf);
 
 
 void log_main(const char *file, int line, int level, const char *subsystem, const char *format, ...);
