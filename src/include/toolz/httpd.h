@@ -26,7 +26,7 @@ using namespace std;
 
 
 struct status_t{
-    int hitcount;
+    uint64_t hitcount;
     int time_sum;
     double min_exec_time;
     double max_exec_time;
