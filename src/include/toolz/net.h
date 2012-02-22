@@ -1,5 +1,8 @@
 #ifndef TOOLZLIB_NET_H
 #define TOOLZLIB_NET_H
+#include <sys/types.h>
+#include <sys/socket.h>
+
 
 // return socket
 // return -1 on error
@@ -9,6 +12,11 @@
 // 127.0.0.1:80
 int getSocket(const char *bind_str, void *args);
 
+ssize_t write_once_ti(int fd, void *buf, size_t count, struct timespec *ts);
+ssize_t read_once_ti(int fd, void *buf, size_t count, struct timespec *ts);
+
+int connect_ti(int fd, const struct sockaddr *addr,
+    socklen_t addrlen, struct timespec *ts);
 /*
 struct event_map_t{
     const char *name;

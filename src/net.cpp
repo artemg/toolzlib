@@ -1,6 +1,7 @@
 #include "toolz/net.h"
 #include "toolz/log.h"
 
+#include <poll.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -31,7 +32,7 @@ int getSocket(const char *bind_str, void *arg){
 
 		sock = socket(AF_UNIX, SOCK_STREAM, 0);
 		su.sun_family = AF_UNIX;
-		snprintf(su.sun_path, sizeof(su.sun_path), sock_path);
+		snprintf(su.sun_path, sizeof(su.sun_path), "%s", sock_path);
 		if( bind(sock, (const sockaddr*) &su, sizeof(su)) == -1){
 			return -1;
 		}
@@ -75,5 +76,68 @@ int getSocket(const char *bind_str, void *arg){
 	fcntl(sock, F_SETFL, flags);
 	
 	return sock;
+}
+
+ssize_t write_once_ti(int fd, void *buf, size_t count, struct timespec *ts){
+    int ret;
+
+    struct pollfd pp;
+    pp.fd = fd;
+    pp.events = POLLOUT;
+
+    ret = ppoll(&pp, 1, ts, NULL);
+    if( ret != 1 || !(pp.revents & POLLOUT) ){
+        return -2;
+    }
+    ret = write(fd, buf, count);
+    return ret;
+}
+ssize_t read_once_ti(int fd, void *buf, size_t count, struct timespec *ts){
+    int ret;
+
+    struct pollfd pp;
+    pp.fd = fd;
+    pp.events = POLLIN;
+
+    ret = ppoll(&pp, 1, ts, NULL);
+    if( ret != 1 || !(pp.revents & POLLIN) ){
+        return -2;
+    }
+    ret = read(fd, buf, count);
+    return ret;
+}
+
+int connect_ti(int fd, const struct sockaddr *addr,
+    socklen_t addrlen, struct timespec *ts)
+{
+    struct pollfd pp;
+    int ret;
+    pp.fd = fd;
+    pp.events = POLLOUT;
+
+    int flag = 1;
+    flag = fcntl(fd, F_GETFL);
+    flag |= O_NONBLOCK;
+    fcntl(fd, F_SETFL, flag);
+
+    ret = connect(fd, addr, addrlen);
+    if( ret != 0 ){
+        return ret;
+    }
+
+    ret = ppoll(&pp, 1, ts, NULL);
+    if( ret != 1 || !(pp.revents & POLLOUT) ){
+        return -2;
+    } else {
+        socklen_t err_len;
+        int error;
+
+        err_len = sizeof(error);
+        if(getsockopt(fd, SOL_SOCKET, SO_ERROR, &error, &err_len) < 0 || error != 0)
+        {
+            return -3;
+        }
+    }
+    return 0;
 }
 
