@@ -211,6 +211,9 @@ int CHttpd::print_common_status(lz_httpd_req_t *req){
 
 int CHttpd::accept(const char *bind_str, void *arg){
     int sock = getSocket(bind_str, arg);
+    if( sock == -1 ){
+        return -1;
+    }
     return accept(sock); // TODO CLOSE
 }
 

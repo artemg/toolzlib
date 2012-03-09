@@ -47,7 +47,7 @@ int getSocket(const char *bind_str_all, void *arg){
 	int backlog = 128;
     const int max_system_backlog = get_max_system_backlog();
 
-    if( bind_str == NULL ){
+    if( bind_str_all == NULL ){
         return -1;
     }
 
