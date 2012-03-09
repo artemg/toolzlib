@@ -61,7 +61,7 @@ int getSocket(const char *bind_str_all, void *arg){
     }
 
     if( max_system_backlog != -1 && backlog > max_system_backlog ){
-        LOG(L_WARN, "", "getSocket: trying to set backlog to %d, but truncated to system value %d\n",
+        LOG(L_WARN, "toolzlib", "getSocket: trying to set backlog to %d, but truncated to system value %d\n",
             backlog, max_system_backlog);
     }    
 
@@ -89,7 +89,7 @@ int getSocket(const char *bind_str_all, void *arg){
 		char *bind_str_cpy = strdupa(bind_str);
 		char *port = strchr(bind_str_cpy, ':');
 		if( port == NULL ){
-			LOG(L_WARN, NULL, "Cant find ':' in bind str '%s'\n", bind_str);
+			LOG(L_WARN, "toolzlib", "Cant find ':' in bind str '%s'\n", bind_str);
 			return -1;
 		}
 		*port = '\0';
