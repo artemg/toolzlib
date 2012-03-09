@@ -15,11 +15,55 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-int getSocket(const char *bind_str, void *arg){
+int get_max_system_backlog(){
+    int ret;
+    char b[128];
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    FILE *fp = fopen("/proc/sys/net/core/somaxconn", "r");
+    if( fp == NULL )
+        return -1;
+
+    read = getline(&line, &len, fp);
+    if( read == -1 ){
+        ret = -1;
+    } else {
+        ret = atoi(line);
+    }
+    if( line )
+        free(line);
+    fclose(fp);
+    return ret;
+}
+
+int getSocket(const char *bind_str_all, void *arg){
 	int on = 1;
 	int flag = 1;
 	int sock;
-	const int backlog = 128;
+    const char *bind_str = NULL;
+    const char *param1   = NULL;
+	int backlog = 128;
+    const int max_system_backlog = get_max_system_backlog();
+
+    if( bind_str == NULL ){
+        return -1;
+    }
+
+    const char str_delims[] = " \t";
+    char *strbuf_it = strdupa(bind_str_all);
+
+    bind_str       = strsep(&strbuf_it, str_delims);
+    param1         = strsep(&strbuf_it, str_delims);
+    if( param1 && strncmp(param1, "backlog=", sizeof("backlog=") - 1 ) == 0 ){
+        backlog = atoi(param1 + sizeof("backlog=") - 1);
+    }
+
+    if( max_system_backlog != -1 && backlog > max_system_backlog ){
+        LOG(L_WARN, "", "getSocket: trying to set backlog to %d, but truncated to system value %d\n",
+            backlog, max_system_backlog);
+    }    
 
 	if( strncmp(bind_str, "unix:", sizeof("unix:") - 1 ) == 0 ){
 	// bind unix
