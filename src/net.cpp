@@ -58,6 +58,7 @@ int getSocket(const char *bind_str_all, void *arg){
     param1         = strsep(&strbuf_it, str_delims);
     if( param1 && strncmp(param1, "backlog=", sizeof("backlog=") - 1 ) == 0 ){
         backlog = atoi(param1 + sizeof("backlog=") - 1);
+        LOG(L_DEBUG, "toolzlib", "backlog set to %d\n", backlog);
     }
 
     if( max_system_backlog != -1 && backlog > max_system_backlog ){
