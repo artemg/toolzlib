@@ -9,7 +9,7 @@ struct callb_arg{
     int eventfd;
 };
 
-int call_async(func *f, void *farg, struct timespec *ts);
+int callwithtimeout(func *f, void *farg, struct timespec *ts);
 
 #endif
 

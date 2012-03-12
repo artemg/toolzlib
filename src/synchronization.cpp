@@ -22,7 +22,7 @@ static void *callb(void *arg){
 // -1 on error
 // 1 on timeout
 // 0 on ok
-int call_async(func *f, void *farg, struct timespec *ts){
+int callwithtimeout(func *f, void *farg, struct timespec *ts){
     struct pollfd pp;
     int local_eventfd;
     int ret;
