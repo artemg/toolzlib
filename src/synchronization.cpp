@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/eventfd.h>
 #include <pthread.h>
+#include <stdint.h>
 
 #define _GNU_SOURCE
 #include <poll.h>
