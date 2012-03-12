@@ -10,7 +10,7 @@
 #include <poll.h>
 
 static void *callb(void *arg){
-    static const uint64_t b = {1};
+    static const uint64_t b = 1;
     callb_arg *c = (callb_arg *) arg;
     c->f(c->arg);
     write(c->eventfd, &b, sizeof(b));
