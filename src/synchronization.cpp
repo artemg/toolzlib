@@ -24,6 +24,7 @@ static void *callb(void *arg){
 // 0 on ok
 int call_async(func *f, void *farg, struct timespec *ts){
     struct pollfd pp;
+    int local_eventfd;
     int ret;
     pthread_t t;
     pthread_attr_t attr;
@@ -35,8 +36,12 @@ int call_async(func *f, void *farg, struct timespec *ts){
     if( arg->eventfd == -1 ){
         goto error_free;
     }
+    local_eventfd = dup(arg->eventfd);
+    if( local_eventfd == -1 ){
+        goto error_free;
+    }
     
-    pp.fd = arg->eventfd;
+    pp.fd = local_eventfd;
     pp.events = POLLIN;
 
     if( pthread_attr_init(&attr) ){
@@ -58,12 +63,15 @@ int call_async(func *f, void *farg, struct timespec *ts){
 
     ret = ppoll(&pp, 1, ts, NULL);
     if( ret != 1 || !(pp.revents & POLLIN) ){
+        close(local_eventfd);
         return 1;
     } 
+    close(local_eventfd);
     return 0;
 
 error_close_and_free:
     close(arg->eventfd);
+    close(local_eventfd);
 error_free:
     free(arg);
 error:
