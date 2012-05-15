@@ -430,6 +430,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     CHttpd *me = (CHttpd *)arg;
     const char *action = NULL;
     eventMapNode *eventMapCursor = NULL;
+    lz_httpd_req_t *lz_req = NULL;
 
 
     const char str_delims[] = "/";
@@ -437,8 +438,11 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
 
     action       = strsep(&strbuf_it, str_delims);
     action       = strsep(&strbuf_it, str_delims);
+    if( action == NULL ){
+        goto fail;
+    }
 
-    lz_httpd_req_t *lz_req = me->get_free_req();
+    lz_req = me->get_free_req();
     if( lz_req == NULL ){
         goto ret;
     }
