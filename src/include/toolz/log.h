@@ -5,10 +5,15 @@
 #include <stdarg.h>
 #include <string.h>
 
-#define L_ERROR 1
-#define L_WARN 2
-#define L_DEBUG 3
-#define L_DEBUG12 12
+
+#define L_EMERG     1
+#define L_ALERT     2
+#define L_CRIT      3
+#define L_ERROR     4
+#define L_WARN      5
+#define L_NOTICE    6
+#define L_INFO      7
+#define L_DEBUG     8
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +31,7 @@ struct log_conf_t {
 
 
 int set_log_conf(struct log_conf_t *conf);
+int set_log_conf_string(const char *str);
 
 
 void log_main(const char *file, int line, int level, const char *subsystem, const char *format, ...);

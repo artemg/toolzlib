@@ -52,7 +52,7 @@ int CConfig::parsefile(const char *config_filename)
             if (i != int_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atoi(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -63,7 +63,7 @@ int CConfig::parsefile(const char *config_filename)
             if (i != uint_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = (uint32_t)strtoul(value, NULL, 10);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -76,7 +76,7 @@ int CConfig::parsefile(const char *config_filename)
                 //if( *(i->second.holder) != NULL ) free(*(i->second.holder));
                 *(i->second.holder) = strdup(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%s'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%s'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -87,7 +87,7 @@ int CConfig::parsefile(const char *config_filename)
             if(i != ushort_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atoi(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%d'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -98,7 +98,7 @@ int CConfig::parsefile(const char *config_filename)
             if(i != int64_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = strtoll(value, NULL, 10);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%ld'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%ld'\n",
                     key, *(i->second.holder) );
                 continue;
             }
@@ -109,12 +109,12 @@ int CConfig::parsefile(const char *config_filename)
             if(i != double_map.end() && i->second.source < CONFIG_FILE){
                 *(i->second.holder) = atof(value);
                 i->second.source    = CONFIG_FILE;
-                LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%f'\n",
+                LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%f'\n",
                     key, *(i->second.holder) );
                 continue;
             }
         }
-        LOG(L_DEBUG12, NULL, "Config string '%s' ignored\n",
+        LOG(L_DEBUG, "toolzlib", "Config string '%s' ignored\n",
             buf);
     }
     fclose(fp);
@@ -218,7 +218,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if (i != int_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atoi(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%d'\n",
                         long_options[option_index].name,
                          *(i->second.holder) );
                     continue;
@@ -232,7 +232,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                     //if( *(i->second.holder) != NULL ) free(*(i->second.holder));
                     *(i->second.holder) = strdup(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%s'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%s'\n",
                         long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
@@ -244,7 +244,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != ushort_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atoi(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%d'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%d'\n",
                         long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
@@ -256,7 +256,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != int64_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = strtoll(optarg, NULL, 10);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%ld'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%ld'\n",
                         long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
@@ -268,7 +268,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                 if(i != double_map.end() && i->second.source < COMMAND_LINE){
                     *(i->second.holder) = atof(optarg);
                     i->second.source    = COMMAND_LINE;
-                    LOG(L_DEBUG12, NULL, "Config: added param '%s', value '%f'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: added param '%s', value '%f'\n",
                         long_options[option_index].name,
                         *(i->second.holder) );
                     continue;
@@ -279,7 +279,7 @@ int CConfig::parse_commandline(int argc, char** argv)
                 map<string, callback_val>::iterator i = callback_map.find(long_options[option_index].name);
                 if(i != callback_map.end() ){
                     (*(i->second.func))(this);
-                    LOG(L_DEBUG12, NULL, "Config: called param '%s'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: called param '%s'\n",
                         long_options[option_index].name);
                     continue;
                 }
@@ -289,12 +289,12 @@ int CConfig::parse_commandline(int argc, char** argv)
                 map<string, callback_1param_val>::iterator i = callback_1param_map.find(long_options[option_index].name);
                 if(i != callback_1param_map.end() ){
                     (*(i->second.func))(optarg, this);
-                    LOG(L_DEBUG12, NULL, "Config: called param '%s'\n",
+                    LOG(L_DEBUG, "toolzlib", "Config: called param '%s'\n",
                         long_options[option_index].name);
                     continue;
                 }
             }
-            LOG(L_DEBUG12, NULL, "Config string '%s' ignored\n",
+            LOG(L_DEBUG, "toolzlib", "Config string '%s' ignored\n",
                 long_options[option_index].name);
         }
     }
