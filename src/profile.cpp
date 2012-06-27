@@ -182,20 +182,18 @@ int ProfileReporter::addStat(const char *action, double exec_time){
     stat_t::iterator status_i = stat.find(action);
     if(status_i != stat.end()){
         status_val &psv = status_i->second;
-        if( sync ){
-            if( exec_time < psv.min_exec_time ){
-                psv.min_exec_time = exec_time;
-            }
-            if( exec_time > psv.max_exec_time ){
-                psv.max_exec_time = exec_time;
-            }
-            double requests = psv.hitcount + 1;
-            double k1 = psv.hitcount / requests;
-            double k2 = 1 / requests;
-            psv.avg_exec_time = k1*psv.avg_exec_time + k2*exec_time;
-            if( exec_time >= 1 ){
-                ++psv.more_1sec_exec_time;
-            }
+        if( exec_time < psv.min_exec_time ){
+            psv.min_exec_time = exec_time;
+        }
+        if( exec_time > psv.max_exec_time ){
+            psv.max_exec_time = exec_time;
+        }
+        double requests = psv.hitcount + 1;
+        double k1 = psv.hitcount / requests;
+        double k2 = 1 / requests;
+        psv.avg_exec_time = k1*psv.avg_exec_time + k2*exec_time;
+        if( exec_time >= 1 ){
+            ++psv.more_1sec_exec_time;
         }
         // must be after computing avg_exec_time
         psv.hitcount += 1;
