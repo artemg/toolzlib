@@ -84,7 +84,7 @@ int CHttpd::add_printf(lz_httpd_req_t *req, const char *fmt, ...){
 }
 
 int CHttpd::print_common_status_kv(lz_httpd_req_t *req){
-    return print_common_status_main(req, CHttpd::E_KV);
+    return print_common_status_main(req, E_KV);
 }
 
 int CHttpd::print_common_status(lz_httpd_req_t *req){
