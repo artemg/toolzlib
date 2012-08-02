@@ -117,7 +117,7 @@ int CHttpd::print_common_status_main(lz_httpd_req_t *req, print_type_t type){
     if( type == E_HTML ){
         CHttpd::add_printf(req,
             "<html>\n<meta http-equiv=\"Content-Type\" content=\"text/html;"
-            "charset=utf-8\" />\n<head>\n<title>Welcome %s</title>\n</head>\n<body>\n"
+            "charset=utf-8\" />\n<head>\n<title>Welcome</title>\n</head>\n<body>\n"
             "<table border=1 cellspacing='0' cellpadding='3'>\n"  
             "<tr><th>action/result</th><th>count</th>"
             "<th>per sec</th><th>per sec in last</th>"
