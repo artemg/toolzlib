@@ -17,6 +17,7 @@
 
 #include <toolz/httpd_req.h>
 #include <toolz/profile.h>
+#include <toolz/event.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -58,8 +59,9 @@ class CHttpd
         CHttpd();
         ~CHttpd();
 
+        enum print_type_t { E_HTML, E_KV };
 
-
+        int Init(eventMapNode *eventMap, void *event_base);
         int Init(eventMapNode *eventMap);
         void run();
         void run_async();
@@ -71,7 +73,10 @@ class CHttpd
         lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
         int make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query);
         int make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, int http_type, const char *query);
-        int print_common_status(lz_httpd_req_t *req);
+        int print_common_status(lz_httpd_req_t *req) __attribute__ ((deprecated));
+        int print_common_status_html(lz_httpd_req_t *req);
+        int print_common_status_kv(lz_httpd_req_t *req);
+        int print_common_status_main(lz_httpd_req_t *req, print_type_t type);
         void print_actions(lz_httpd_req_t *req);
         // shutdown callback
         void destroy();
