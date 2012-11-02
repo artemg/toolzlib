@@ -53,9 +53,15 @@ struct eventMapNode
 };
 
 
+
 class CHttpd
 {
     public:
+enum lz_http_method_t {
+  EVHTTP_REQ_GET = 1 << 0, EVHTTP_REQ_POST = 1 << 1, EVHTTP_REQ_HEAD = 1 << 2, EVHTTP_REQ_PUT = 1 << 3,
+  EVHTTP_REQ_DELETE = 1 << 4, EVHTTP_REQ_OPTIONS = 1 << 5, EVHTTP_REQ_TRACE = 1 << 6, EVHTTP_REQ_CONNECT = 1 << 7,
+  EVHTTP_REQ_PATCH = 1 << 8
+};
         CHttpd();
         ~CHttpd();
 
@@ -71,8 +77,8 @@ class CHttpd
         int add_destination(const char *addr, int port, int timeout);
         int send_reply(lz_httpd_req_t *req);
         lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
-        int make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query);
-        int make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, int http_type, const char *query);
+        int make_request(int destination, lz_httpd_req_t *req, lz_http_method_t http_type, const char *query);
+        int make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, lz_http_method_t http_type, const char *query);
         int print_common_status(lz_httpd_req_t *req) __attribute__ ((deprecated));
         int print_common_status_html(lz_httpd_req_t *req);
         int print_common_status_kv(lz_httpd_req_t *req);
@@ -86,6 +92,8 @@ class CHttpd
 
         static const char *get_header(lz_httpd_req_t *req, const char *name);
         static const char *get_query_param(lz_httpd_req_t *req, const char *name);
+	static const lz_http_method_t get_method(lz_httpd_req_t *req);
+	static const char *get_method_str(lz_httpd_req_t *req);
         static void add_header(lz_httpd_req_t *req, const char *name, const char *value);
         static void set_response_code(lz_httpd_req_t *req, int status_code);
         static int add_printf(lz_httpd_req_t *req, const char *fmt, ...);

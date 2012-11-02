@@ -446,7 +446,7 @@ lz_httpd_req_t *CHttpd::new_request(void (*callb)(lz_httpd_req_t *req, void *arg
 }
 
 // TODO free req on failed requests
-int CHttpd::make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, int http_type, const char *query){
+int CHttpd::make_request(const char *addr, int port, int conn_timeout, lz_httpd_req_t *req, lz_http_method_t http_method, const char *query){
     int err;
     // do not update any statistic
     req->stat = NULL;
@@ -471,7 +471,7 @@ int CHttpd::make_request(const char *addr, int port, int conn_timeout, lz_httpd_
 
     // 5. do request
     err = evhttp_make_request(req->evcon, req->evreq,
-        EVHTTP_REQ_GET, query
+        (evhttp_cmd_type)http_method, query
     );
     if (err == -1){
         LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_make_request()"
@@ -486,7 +486,7 @@ int CHttpd::make_request(const char *addr, int port, int conn_timeout, lz_httpd_
 
 
 // TODO free req on failed requests
-int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, const char *query){
+int CHttpd::make_request(int destination, lz_httpd_req_t *req, lz_http_method_t http_method, const char *query){
     if( destination > destinations.size() ){
         LOG(L_ERROR, NULL, "Unknown dest\n");
         return -1;
@@ -516,7 +516,7 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, int http_type, co
 
     // 5. do request
     err = evhttp_make_request(req->evcon, req->evreq,
-        EVHTTP_REQ_GET, query
+        (evhttp_cmd_type)http_method, query
     );
     if (err == -1){
         LOG(L_DEBUG, "toolzlib", "Cannot create evhttp_make_request()"
@@ -555,6 +555,45 @@ void CHttpd::print_actions(lz_httpd_req_t *req){
         "</HTML>\n"
     );
 
+}
+
+static const char *get_method_str(lz_httpd_req_t *req){
+	switch (evhttp_request_get_command(req->evreq)){
+		case EVHTTP_REQ_GET:
+			return "GET";
+			break;
+		case EVHTTP_REQ_POST:
+			return "POST";
+			break;
+		case EVHTTP_REQ_HEAD:
+			return "HEAD";
+			break;
+		case EVHTTP_REQ_PUT:
+			return "PUT";
+			break;
+		case EVHTTP_REQ_DELETE:
+			return "DELETE";
+			break;
+		case EVHTTP_REQ_OPTIONS:
+			return "OPTIONS";
+			break;
+		case EVHTTP_REQ_TRACE:
+			return "TRACE";
+			break;
+		case EVHTTP_REQ_CONNECT:
+			return "CONNECT";
+			break;
+		case EVHTTP_REQ_PATCH:
+			return "PATCH";
+			break;
+		defult:
+			return "";
+			break;
+	}
+}
+
+static const CHttpd::lz_http_method_t get_method(lz_httpd_req_t *req){
+	return (CHttpd::lz_http_method_t) evhttp_request_get_command(req->evreq);
 }
 
 int CHttpd::add_destination(const char *addr, int port, int timeout){
