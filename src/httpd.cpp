@@ -557,7 +557,7 @@ void CHttpd::print_actions(lz_httpd_req_t *req){
 
 }
 
-static const char *get_method_str(lz_httpd_req_t *req){
+static const char *CHttpd::get_method_str(lz_httpd_req_t *req){
 	switch (evhttp_request_get_command(req->evreq)){
 		case EVHTTP_REQ_GET:
 			return "GET";
