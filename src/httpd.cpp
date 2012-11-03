@@ -586,7 +586,7 @@ static const char *CHttpd::get_method_str(lz_httpd_req_t *req){
 		case EVHTTP_REQ_PATCH:
 			return "PATCH";
 			break;
-		defult:
+		default:
 			return "";
 			break;
 	}
