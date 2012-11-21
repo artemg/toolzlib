@@ -263,7 +263,7 @@ int CHttpd::Init(eventMapNode *eventMap, void *event_base)
     if( event_base == NULL ){
         ev_base = event_base_new();
     } else {
-        ;//ev_base = event_base->event_base;
+        ev_base = (struct event_base *)event_base;
     }
     ev_http = evhttp_new(ev_base);
 
