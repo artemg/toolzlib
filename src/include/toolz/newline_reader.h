@@ -14,10 +14,10 @@ public:
 
     const char *fname;
     lz_event_base_t event_base;
-    struct evbuffer *buf;
     struct bufferevent *be;
     fn callb;
     void *callb_arg;
+    int fd;
 };
 
 #endif
