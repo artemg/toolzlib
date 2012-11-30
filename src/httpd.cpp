@@ -55,6 +55,11 @@ void CHttpd::add_header(lz_httpd_req_t *req, const char *name, const char *value
     evhttp_add_header(evhttp_request_get_output_headers(req->evreq), name, value);
 }
 
+int CHttpd::add_data(lz_httpd_req_t *req, const char *data, size_t data_len){
+    return evbuffer_add(evhttp_request_get_output_buffer(req->evreq), data, data_len);
+}
+
+
 void CHttpd::set_response_code(lz_httpd_req_t *req, int status_code){
     req->response_status_code = status_code;
 }

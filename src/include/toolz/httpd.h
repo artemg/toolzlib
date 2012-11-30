@@ -95,6 +95,7 @@ enum lz_http_method_t {
 	static lz_http_method_t get_method(lz_httpd_req_t *req);
 	static const char *get_method_str(lz_httpd_req_t *req);
         static void add_header(lz_httpd_req_t *req, const char *name, const char *value);
+        static int add_data(lz_httpd_req_t *req, const char *data, size_t data_len);
         static void set_response_code(lz_httpd_req_t *req, int status_code);
         static int add_printf(lz_httpd_req_t *req, const char *fmt, ...);
         static int get_response_code(lz_httpd_req_t *req);
