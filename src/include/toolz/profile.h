@@ -10,7 +10,8 @@
 #include <pthread.h>
 
 using namespace std;
-
+// 5 min
+#define AVG_REQUESTS_SWITCH_PERIOD 300
 
 void start_profile();
 void end_profile_print();
@@ -100,5 +101,19 @@ class FastProfiler {
         int cur_index;
         static int size;
 };
+
+struct status_t{
+    uint64_t hitcount;
+    int time_sum;
+    double min_exec_time;
+    double max_exec_time;
+    double avg_exec_time;
+    uint64_t more_1sec_exec_time;
+    uint64_t prev_period_req;
+    uint64_t cur_period_req;
+    int period_start_time;
+};
+
+int update_statistic(status_t *stat, double exec_time); 
 
 #endif

@@ -2,6 +2,7 @@
 #define TOOLZ_NEWLINE_READER_H
 #include <event.h>
 #include <toolz/event.h>
+#include <toolz/profile.h>
 
 typedef void *(* fn)(char *str, size_t s, void *);
 
@@ -18,6 +19,7 @@ public:
     fn callb;
     void *callb_arg;
     int fd;
+    status_t stat;
 };
 
 #endif

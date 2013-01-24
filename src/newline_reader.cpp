@@ -14,8 +14,15 @@ void CNewLineReader::read_cb(struct bufferevent *be, void *ctx){
     char *s = NULL;
     
     while( s = evbuffer_readln(bufferevent_get_input(be), &size, EVBUFFER_EOL_LF) ){
+        timespec start_time, end_time;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &start_time);
+
         t->callb(s, size, t->callb_arg);
         free(s);
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &end_time);
+        double diff = diff_timespec(&start_time, &end_time);
+        update_statistic(&t->stat, diff);
     }
 //    bufferevent_setcb (be, read_cb, NULL, NULL, ctx);
     bufferevent_enable(be, EV_READ);

@@ -36,8 +36,7 @@ CHttpd::~CHttpd()
 ;
 };
 
-// 5 min
-#define AVG_REQUESTS_SWITCH_PERIOD 300
+
 
 const char *CHttpd::get_header(lz_httpd_req_t *req, const char *name){
     return evhttp_find_header(evhttp_request_get_input_headers(req->evreq), name);
@@ -380,42 +379,6 @@ fail:
     goto ret;
 }
 
-int CHttpd::update_statistic(status_t *st, double exec_time){
-    if( st == NULL )
-        return 0;
-
-    // Get current time
-    struct timeval ti;
-    gettimeofday(&ti, NULL);
-
-    if( st->hitcount == 0 ){
-        st->min_exec_time = exec_time;
-    }
-    if( exec_time < st->min_exec_time ){
-        st->min_exec_time = exec_time;
-    }
-    if( exec_time > st->max_exec_time ){
-        st->max_exec_time = exec_time;
-    }
-    double requests = st->hitcount + 1;
-    double k1 = st->hitcount / requests;
-    double k2 = 1 / requests;
-    st->avg_exec_time = k1*st->avg_exec_time + k2*exec_time;
-    if( exec_time >= 1 ){
-        ++st->more_1sec_exec_time;
-    }
-    // must be after computing avg_exec_time
-    st->hitcount += 1;
-    st->time_sum += 0;
-    if(ti.tv_sec > st->period_start_time + AVG_REQUESTS_SWITCH_PERIOD) {
-        st->period_start_time = ti.tv_sec;
-        st->prev_period_req = st->cur_period_req;
-        st->cur_period_req = 0;
-    }
-    st->cur_period_req += 1;
-    return 0;
-}
-
 void CHttpd::request_callb(struct evhttp_request *req, void *arg){
     lz_httpd_req_t *r = (lz_httpd_req_t *)arg;
 
@@ -426,7 +389,7 @@ void CHttpd::request_callb(struct evhttp_request *req, void *arg){
     timespec cur_time;
     clock_gettime(CLOCK_MONOTONIC_RAW, &cur_time);
     double t = diff_timespec(&r->start_time, &cur_time);
-    r->httpd->update_statistic(r->stat, t);
+    update_statistic(r->stat, t);
 
 //    evhttp_request_free(r->evreq);
     evhttp_connection_free(r->evcon);

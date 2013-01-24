@@ -26,18 +26,6 @@
 using namespace std;
 
 
-struct status_t{
-    uint64_t hitcount;
-    int time_sum;
-    double min_exec_time;
-    double max_exec_time;
-    double avg_exec_time;
-    uint64_t more_1sec_exec_time;
-    uint64_t prev_period_req;
-    uint64_t cur_period_req;
-    int period_start_time;
-};
-
 #define LZ_HTTPD_FLAG_DEFAULT 1
 #define LZ_HTTPD_FLAG_URL_MATCH_EXACT 2
 #define LZ_HTTPD_FLAG_URL_START_WITH 4
@@ -124,7 +112,7 @@ enum lz_http_method_t {
 
 
 
-        int update_statistic(status_t *stat, double exec_time); 
+
 
         struct destination_t {
             const char *addr;

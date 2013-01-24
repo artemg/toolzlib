@@ -257,5 +257,41 @@ int main(){
     printf("%s\n", buf);
     return 0;
 }
+int update_statistic(status_t *st, double exec_time){
+    if( st == NULL )
+        return 0;
+
+    // Get current time
+    struct timeval ti;
+    gettimeofday(&ti, NULL);
+
+    if( st->hitcount == 0 ){
+        st->min_exec_time = exec_time;
+    }
+    if( exec_time < st->min_exec_time ){
+        st->min_exec_time = exec_time;
+    }
+    if( exec_time > st->max_exec_time ){
+        st->max_exec_time = exec_time;
+    }
+    double requests = st->hitcount + 1;
+    double k1 = st->hitcount / requests;
+    double k2 = 1 / requests;
+    st->avg_exec_time = k1*st->avg_exec_time + k2*exec_time;
+    if( exec_time >= 1 ){
+        ++st->more_1sec_exec_time;
+    }
+    // must be after computing avg_exec_time
+    st->hitcount += 1;
+    st->time_sum += 0;
+    if(ti.tv_sec > st->period_start_time + AVG_REQUESTS_SWITCH_PERIOD) {
+        st->period_start_time = ti.tv_sec;
+        st->prev_period_req = st->cur_period_req;
+        st->cur_period_req = 0;
+    }
+    st->cur_period_req += 1;
+    return 0;
+}
+
 
 #endif
