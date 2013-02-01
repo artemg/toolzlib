@@ -237,6 +237,9 @@ void CHttpd::shutdown(){
     event_base_loopbreak(ev_base);
 }
 
+void CHttpd::Destroy(){
+    evhttp_free(ev_http);
+}
 
 int CHttpd::Init(eventMapNode *eventMap){
     return Init(eventMap, NULL); 

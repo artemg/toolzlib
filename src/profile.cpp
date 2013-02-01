@@ -238,25 +238,7 @@ ProfileReporter::ProfileReporter(){
 ProfileReporter::~ProfileReporter(){
     pthread_rwlock_destroy(&stat_lock);
 }
-#ifdef TEST_LIB
 
-int main(){
-    char buf[10000];
-    CProfilerTask t;
-    {
-    CProfilerTask t2;
-    t2.start("a");
-    for(int i=0; i<10; ++i){
-        t.start("me");
-        sleep(1);
-        t.stop();
-    }
-//    t2.stop();
-    }
-    t.print(buf, sizeof(buf));
-    printf("%s\n", buf);
-    return 0;
-}
 int update_statistic(status_t *st, double exec_time){
     if( st == NULL )
         return 0;
@@ -292,6 +274,26 @@ int update_statistic(status_t *st, double exec_time){
     st->cur_period_req += 1;
     return 0;
 }
+#ifdef TEST_LIB
+
+int main(){
+    char buf[10000];
+    CProfilerTask t;
+    {
+    CProfilerTask t2;
+    t2.start("a");
+    for(int i=0; i<10; ++i){
+        t.start("me");
+        sleep(1);
+        t.stop();
+    }
+//    t2.stop();
+    }
+    t.print(buf, sizeof(buf));
+    printf("%s\n", buf);
+    return 0;
+}
+
 
 
 #endif

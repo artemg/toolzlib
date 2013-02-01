@@ -73,8 +73,8 @@ enum lz_http_method_t {
         int print_common_status_main(lz_httpd_req_t *req, print_type_t type);
         void print_actions(lz_httpd_req_t *req);
         // shutdown callback
-        void destroy();
-        void shutdown();
+        void Destroy();
+        void shutdown() __attribute__ ((deprecated));
 
         static void request_callb(struct evhttp_request *req, void *arg);
 
