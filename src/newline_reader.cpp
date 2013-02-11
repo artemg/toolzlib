@@ -32,8 +32,10 @@ void CNewLineReader::cb2(struct bufferevent *bev, short what, void *ctx){
     CNewLineReader *t = (CNewLineReader *) ctx;
     if( t->fd != -1 )
         close(t->fd);
-    if( t->be != NULL )
+    if( t->be != NULL ){
         bufferevent_free(t->be);
+        t->be = NULL;
+    }
     t->Init(t->event_base, t->callb, t->callb_arg, t->fname);
     //bufferevent_setcb (bev, read_cb, NULL, cb2, ctx);
     //bufferevent_enable(bev, EV_READ );
@@ -61,8 +63,10 @@ int CNewLineReader::Init(lz_event_base_t event_base_, fn callb_, void *callb_arg
 int CNewLineReader::Destroy(){
     if( fd != -1 )
         close(fd);
-    if( be != NULL )
+    if( be != NULL ){
         bufferevent_free(be);   
+        be = NULL;
+    }
 }
 
 
