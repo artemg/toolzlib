@@ -9,6 +9,7 @@ typedef void *(* fn)(char *str, size_t s, void *);
 class CNewLineReader{
 public:
     int Init(lz_event_base_t event_base, fn callb, void *callb_arg, const char *fname);
+    int Destroy();
 
     static void cb2(struct bufferevent *bev, short what, void *ctx);
     static void read_cb(struct bufferevent *be, void *ctx);
