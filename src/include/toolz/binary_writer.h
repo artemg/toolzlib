@@ -10,12 +10,15 @@ public:
     int Init(struct sockaddr *addr, int addr_size, lz_event_base_t base);
     int connect();
     int write(const void *buf, size_t buf_size);
+    int get_state();
+    uint64_t get_connection_failures();
 private:
     lz_event_base_t base;
     struct bufferevent *be;
     int state;
     struct sockaddr *addr;
     int addr_len;
+    uint64_t connection_failures;
 };
 #endif
 

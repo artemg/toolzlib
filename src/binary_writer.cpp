@@ -6,6 +6,14 @@
 #define NOT_CONNECTED 1
 #define CONNECTING 2
 
+int CBinaryWriter::get_state(){
+    return state;
+}
+
+uint64_t CBinaryWriter::get_connection_failures(){
+    return connection_failures;
+}
+
 void CBinaryWriter::event_cb(struct bufferevent *bev, short what, void *ctx){
 	CBinaryWriter *me = (CBinaryWriter *)ctx;
 	if( what & BEV_EVENT_CONNECTED ){
@@ -13,6 +21,7 @@ void CBinaryWriter::event_cb(struct bufferevent *bev, short what, void *ctx){
 	}
 	if( what & (BEV_EVENT_READING | BEV_EVENT_WRITING | BEV_EVENT_EOF | BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT) ){
 		me->state = NOT_CONNECTED;
+        me->connection_failures++;
 	}
 }
 
