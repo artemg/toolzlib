@@ -38,6 +38,35 @@ int get_max_system_backlog(){
     return ret;
 }
 
+int lz_get_network_address(const char *addr_str, sockaddr ** addr, size_t *addr_len){
+    if( strncmp(addr_str, "unix:", sizeof("unix:") - 1 ) == 0 ){   
+		const char *path = &addr_str[sizeof("unix:") - 1];
+        sockaddr_un *s = (sockaddr_un *)calloc(1, sizeof(sockaddr_un));
+
+        s->sun_family = AF_UNIX;
+        snprintf(s->sun_path, sizeof(s->sun_path), "%s", path);
+        *addr = (sockaddr *)s;
+        *addr_len = sizeof(sockaddr_un);
+    } else {
+		char *addr_str_cpy = strdupa(addr_str);
+		char *port = strchr(addr_str_cpy, ':');
+		if( port == NULL ){
+			LOG(L_WARN, "toolzlib", "Cant find ':' in bind str '%s'\n", addr_str);
+			return -1;
+		}
+		*port = '\0';
+		port++;
+
+        sockaddr_in *s = (sockaddr_in *)calloc(1, sizeof(sockaddr_in));
+        s->sin_family = AF_INET;
+        s->sin_port = htons(atoi(port));
+        s->sin_addr.s_addr = inet_addr(addr_str_cpy);
+        *addr = (sockaddr *)s;
+        *addr_len = sizeof(sockaddr_in);
+    }
+    return 0;
+}
+
 int getSocket(const char *bind_str_all, void *arg){
 	int on = 1;
 	int flag = 1;

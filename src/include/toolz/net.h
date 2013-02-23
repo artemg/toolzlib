@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+int lz_get_network_address(const char *addr_str, sockaddr ** addr, size_t *addr_len);
 
 // return socket
 // return -1 on error
