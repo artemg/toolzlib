@@ -14,6 +14,11 @@ void start_profile(){
     clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
 }
 
+void start_profile(timespec *t){
+    clock_gettime(CLOCK_MONOTONIC_RAW, t);
+}
+
+
 void end_profile_print(){
     clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
     double res = diff_timespec(&t1, &t2);
@@ -46,6 +51,12 @@ void end_profile_print(timespec *t_start){
 double end_profile(){
     clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
     return diff_timespec(&t1, &t2);
+}
+
+double end_profile(timespec *t1){
+    timespec t2;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
+    return diff_timespec(t1, &t2);
 }
 
 double diff_timeval(timeval *t1, timeval *t2){
@@ -239,7 +250,7 @@ ProfileReporter::~ProfileReporter(){
     pthread_rwlock_destroy(&stat_lock);
 }
 
-int update_statistic(status_t *st, double exec_time){
+int update_statistic(status_t *st, double exec_time, double wait_time){
     if( st == NULL )
         return 0;
 

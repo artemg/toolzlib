@@ -14,9 +14,11 @@ using namespace std;
 #define AVG_REQUESTS_SWITCH_PERIOD 300
 
 void start_profile();
+void start_profile(timespec *t);
 void end_profile_print();
 void end_profile_print(timespec *t);
 double end_profile();
+double end_profile(timespec *t1);
 double diff_timeval(timeval *t1, timeval *t2);
 double diff_timespec(timespec *t1, timespec *t2);
 

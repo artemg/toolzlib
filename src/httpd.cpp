@@ -21,10 +21,6 @@
 #include <event2/thread.h>
 #include <event2/event_struct.h>
 
-#ifndef CLOCK_MONOTONIC_RAW
-#define CLOCK_MONOTONIC_RAW 4
-#endif
-
 
 CHttpd::CHttpd()
 {
@@ -301,10 +297,7 @@ int CHttpd::send_reply(lz_httpd_req_t *req){
         evhttp_clear_headers(&req->query_params);
     }
 
-    timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &cur_time);
-    double t = diff_timespec(&req->start_time, &cur_time);
-    update_statistic(req->stat, t);
+    update_statistic(req->stat, end_profile(&req->start_time) );
 
     // now free
     push_free_req(req);
@@ -351,7 +344,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     // init request
     lz_req->query_params_parsed = 0;
     lz_req->evreq = evreq;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &lz_req->start_time);
+    start_profile(&lz_req->start_time);
     lz_req->stat = NULL;
     lz_req->response_status_code = HTTP_OK; // default return status
 
@@ -389,10 +382,7 @@ void CHttpd::request_callb(struct evhttp_request *req, void *arg){
         r->callb(r, r->callb_arg); // we must provide r OR req ???
     }
 
-    timespec cur_time;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &cur_time);
-    double t = diff_timespec(&r->start_time, &cur_time);
-    update_statistic(r->stat, t);
+    update_statistic(r->stat, end_profile(&r->start_time));
 
 //    evhttp_request_free(r->evreq);
     evhttp_connection_free(r->evcon);
@@ -463,7 +453,7 @@ int CHttpd::make_request(int destination, lz_httpd_req_t *req, lz_http_method_t 
         return -1;
     }
     destination_t *d = &destinations[destination];
-    clock_gettime(CLOCK_MONOTONIC_RAW, &req->start_time);
+    start_profile(&req->start_time);
     req->stat = &d->stat;
     int err;
 
