@@ -1,2 +1,2 @@
-script: ./autogen.sh
+script: ./autogen.sh && ./configure && make && make test
 language: cpp
