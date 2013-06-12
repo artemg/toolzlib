@@ -1,1 +1,2 @@
+script: autogen.sh
 language: cpp
