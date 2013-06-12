@@ -1,2 +1,2 @@
-script: autogen.sh
+script: ./autogen.sh
 language: cpp
