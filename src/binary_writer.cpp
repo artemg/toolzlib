@@ -14,6 +14,13 @@ uint64_t CBinaryWriter::get_connection_failures(){
     return connection_failures;
 }
 
+size_t CBinaryWriter::get_output_buffer_length(){
+    struct evbuffer *b =  bufferevent_get_output(be);
+    if( b == NULL)
+        return 0;
+    return evbuffer_get_length(b);
+}
+
 void CBinaryWriter::event_cb(struct bufferevent *bev, short what, void *ctx){
 	CBinaryWriter *me = (CBinaryWriter *)ctx;
 	if( what & BEV_EVENT_CONNECTED ){

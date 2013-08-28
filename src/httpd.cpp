@@ -225,6 +225,17 @@ int CHttpd::accept(const char *bind_str, void *arg){
     return accept(sock); // TODO CLOSE
 }
 
+int CHttpd::accept(const char *bind_str, void *arg, int *sock){
+    int s = getSocket(bind_str, arg);
+    if( s == -1 ){
+        return -1;
+    }
+    if( sock )
+        *sock = s;
+    return accept(s); // TODO CLOSE
+}
+
+
 int CHttpd::accept(int socket){
    return evhttp_accept_socket(ev_http, socket); // TODO CLOSE
 }

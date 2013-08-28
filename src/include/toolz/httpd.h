@@ -61,6 +61,7 @@ enum lz_http_method_t {
         void run_async();
         int accept(int socket);
         int accept(const char *str, void *args);
+        int accept(const char *str, void *args, int *sock);
 
         int add_destination(const char *addr, int port, int timeout);
         int send_reply(lz_httpd_req_t *req);

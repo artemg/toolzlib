@@ -250,7 +250,7 @@ ProfileReporter::~ProfileReporter(){
     pthread_rwlock_destroy(&stat_lock);
 }
 
-int update_statistic(status_t *st, double exec_time, double wait_time){
+int update_statistic(status_t *st, double exec_time){
     if( st == NULL )
         return 0;
 

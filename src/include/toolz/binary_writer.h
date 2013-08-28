@@ -12,6 +12,7 @@ public:
     int write(const void *buf, size_t buf_size);
     int get_state();
     uint64_t get_connection_failures();
+    size_t get_output_buffer_length();
 private:
     lz_event_base_t base;
     struct bufferevent *be;
