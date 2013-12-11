@@ -576,7 +576,7 @@ int CHttpd::add_destination(const char *addr, int port, int timeout){
     memset(&d.stat, 0, sizeof(d.stat) );
     destinations.push_back(d);
 
-    return 0; // TODO more destinations
+    return destinations.size() - 1;
 }
 
 int CHttpd::custom_perf_counter_add_stat(size_t id, double exec_time){
