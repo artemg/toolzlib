@@ -24,7 +24,6 @@
 
 CHttpd::CHttpd()
 {
-    evthread_use_pthreads();
 };
 
 CHttpd::~CHttpd()
@@ -32,7 +31,9 @@ CHttpd::~CHttpd()
 ;
 };
 
-
+int CHttpd::send_all_replies_with_connection_close(){
+    send_all_replies_with_connection_close_ = 1;
+}
 
 const char *CHttpd::get_header(lz_httpd_req_t *req, const char *name){
     return evhttp_find_header(evhttp_request_get_input_headers(req->evreq), name);
@@ -44,6 +45,10 @@ const char *CHttpd::get_query_param(lz_httpd_req_t *req, const char *name){
         req->query_params_parsed = 1;
     }
     return evhttp_find_header(&req->query_params, name);
+}
+
+void lz_add_header(lz_httpd_req_t *req, const char *name, const char *value){
+    evhttp_add_header(evhttp_request_get_output_headers(req->evreq), name, value);
 }
 
 void CHttpd::add_header(lz_httpd_req_t *req, const char *name, const char *value){
@@ -217,6 +222,15 @@ int CHttpd::print_common_status_main(lz_httpd_req_t *req, print_type_t type){
     return 0;
 }
 
+int CHttpd::stop_accepting(){
+    for(listen_sockets_t::iterator i = listen_sockets.begin();
+        i != listen_sockets.end();
+        i++)
+    {
+        evhttp_del_accept_socket(ev_http, *i);
+    }
+}
+
 int CHttpd::accept(const char *bind_str, void *arg){
     int sock = getSocket(bind_str, arg);
     if( sock == -1 ){
@@ -244,18 +258,18 @@ void CHttpd::shutdown(){
     event_base_loopbreak(ev_base);
 }
 
-void CHttpd::Destroy(){
-    evhttp_free(ev_http);
-}
-
 int CHttpd::Init(eventMapNode *eventMap){
     return Init(eventMap, NULL); 
 }
 
+void CHttpd::Destroy(){
+    evhttp_free(ev_http);
+}
 
 int CHttpd::Init(eventMapNode *eventMap, void *event_base)
 {
     int32_t err = 0;
+    send_all_replies_with_connection_close_ = 0;
 
     gettimeofday(&start_time, NULL); 
 
@@ -301,7 +315,30 @@ void CHttpd::run()
 
 
 // action is done with this 
+int lz_send_reply(lz_httpd_req_t *req){
+    CHttpd *httpd = req->httpd;
+    if( httpd == NULL )
+        abort();
+    if( httpd->send_all_replies_with_connection_close_ ){
+        lz_add_header(req, "Connection", "close");
+    }
+    evhttp_send_reply(req->evreq, req->response_status_code, "", evhttp_request_get_output_buffer(req->evreq));
+
+    if( req->query_params_parsed ){
+        evhttp_clear_headers(&req->query_params);
+    }
+
+    update_statistic(req->stat, end_profile(&req->start_time) );
+
+    // now free
+    free(req);
+    return 0;
+}
+// action is done with this 
 int CHttpd::send_reply(lz_httpd_req_t *req){
+    if( send_all_replies_with_connection_close_ ){
+        add_header(req, "Connection", "close");
+    }
     evhttp_send_reply(req->evreq, req->response_status_code, "", evhttp_request_get_output_buffer(req->evreq));
 
     if( req->query_params_parsed ){
@@ -358,6 +395,7 @@ void CHttpd::dispatch(struct evhttp_request *evreq, void *arg){
     start_profile(&lz_req->start_time);
     lz_req->stat = NULL;
     lz_req->response_status_code = HTTP_OK; // default return status
+    lz_req->httpd = me;
 
     // now check for actions
     for (eventMapNode *eventMapCursor = me->_eventMap;

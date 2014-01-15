@@ -25,7 +25,7 @@ enum Econfig_param_source{ DEFAULT_VAL, CONFIG_FILE, COMMAND_LINE };
 class CConfig{
 public:
 
-    ~CConfig();
+    virtual ~CConfig();
     // we want to use them as callback functions
     static void printConfigcb(CConfig *conf);
     static void parseFilecb(const char *fname, CConfig *conf);

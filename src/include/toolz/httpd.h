@@ -39,8 +39,10 @@ struct eventMapNode
     uint32_t    flags;
     status_t    stat;
 };
+typedef std::vector<struct evhttp_bound_socket *> listen_sockets_t;
 
 
+int lz_send_reply(lz_httpd_req_t *req);
 
 class CHttpd
 {
@@ -54,6 +56,7 @@ enum lz_http_method_t {
         ~CHttpd();
 
         enum print_type_t { E_HTML, E_KV };
+        void *opaq;
 
         int Init(eventMapNode *eventMap, void *event_base);
         int Init(eventMapNode *eventMap);
@@ -62,8 +65,10 @@ enum lz_http_method_t {
         int accept(int socket);
         int accept(const char *str, void *args);
         int accept(const char *str, void *args, int *sock);
+        int stop_accepting();
 
         int add_destination(const char *addr, int port, int timeout);
+        int send_all_replies_with_connection_close();
         int send_reply(lz_httpd_req_t *req);
         lz_httpd_req_t *new_request(void (*callb)(lz_httpd_req_t *req, void *arg), void *arg);
         int make_request(int destination, lz_httpd_req_t *req, lz_http_method_t http_type, const char *query);
@@ -97,10 +102,13 @@ enum lz_http_method_t {
 
         int custom_perf_counter_add_stat(size_t id, double exec_time);
         size_t custom_perf_counter_add(std::string name);
+        int send_all_replies_with_connection_close_;
     private:
         struct event_base *ev_base;
         struct evhttp *ev_http;
+        listen_sockets_t listen_sockets;
         eventMapNode *_eventMap;
+
 
         static void dispatch(struct evhttp_request *evreq, void *arg);
 
